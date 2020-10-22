@@ -143,3 +143,5 @@ def f12_sol():
         count = input_str.count(char)
         count_dict[char] = count
     print(count_dict)
+
+

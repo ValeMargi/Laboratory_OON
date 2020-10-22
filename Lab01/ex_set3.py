@@ -73,6 +73,7 @@ def f7_sol():
 
 
 def f8_sol():
+    # delete the second column and insert the following new column in its place.
     sample_array = np.array([[34, 43, 73], [82, 22, 12], [53, 94, 66]])
     print(sample_array)
     sample_array = np.delete(sample_array, 1, axis=1) # 1:seconda colonna

@@ -1,0 +1,80 @@
+[33mcommit 75d36a4ce3359478e124e913fb1d865c7ce95aaf[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Thu Oct 22 12:13:21 2020 +0200
+
+    Lab1 finished
+
+[33mcommit a2e94b9910c1f72cb37ca4e92ee849ee9bf96526[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Thu Oct 22 11:07:52 2020 +0200
+
+    Added sol Es
+
+[33mcommit e038d54712a0b940fb7fe2c7232a0e4dc5472d7e[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 21 19:44:54 2020 +0200
+
+    Added sol Lab1
+
+[33mcommit a3c7e652884de779de715a1dd8d02522d9aa0e96[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 21 19:42:57 2020 +0200
+
+    Added sol Lab1
+
+[33mcommit 8c83a1a9a1362252e789e7b9e0b1baf503c9ba14[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 21 18:02:09 2020 +0200
+
+    Example added
+
+[33mcommit bee5b98c0f7ca8d97b7c3a712bee0e829b4b1866[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 21 16:50:44 2020 +0200
+
+    requirements added
+
+[33mcommit bbba4e53d218e856eef79f9c94535365bcef4b4f[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 21 16:46:26 2020 +0200
+
+    gitignore update
+
+[33mcommit 0338aa672b8b3ff92ce272b34b91a693b6b1c4bf[m
+Merge: dc9b815 956437b
+Author: ValeMargi <52396149+ValeMargi@users.noreply.github.com>
+Date:   Wed Oct 21 16:27:12 2020 +0200
+
+    Merge pull request #1 from ValeMargi/develop
+    
+    First version of exercise 2: product
+
+[33mcommit dc9b815481cd7c8211cbb2976e241f469ae0e175[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 14 18:56:38 2020 +0200
+
+    Modifica ex1 e aggiunta file comandiPython
+
+[33mcommit 3ee44d938ddbf45f5c608278f3b7eb9ab3c4a851[m[33m ([m[1;32mversion2[m[33m)[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 14 18:03:11 2020 +0200
+
+    Ex 1 modified: added power
+
+[33mcommit 956437b0b2aef92f07d8a943147f7b87b7366067[m[33m ([m[1;31morigin/develop[m[33m)[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 14 17:32:08 2020 +0200
+
+    First version of exercise 2: product
+
+[33mcommit 77b0c3445210a6eb645f350f2970b8725384dd4a[m
+Author: ValeMargi <s267543@studenti.polito.it>
+Date:   Wed Oct 14 17:26:37 2020 +0200
+
+    First version of exercise 1: sum
+
+[33mcommit 08d75375d7367e96316d9441024e2517c35a9cf6[m
+Author: ValeMargi <52396149+ValeMargi@users.noreply.github.com>
+Date:   Wed Oct 14 16:28:28 2020 +0200
+
+    Initial commit

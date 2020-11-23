@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-sales_data = pd.read_csv("./resources/sales_data.csv")
+sales_data = pd.read_csv("resources/sales_data.csv")
 """"
 df = pd.read_csv("../results/sales_data.csv", header=None, nrows=1)
 df.iloc[0][1:7]
@@ -31,7 +31,7 @@ plt. yticks([100e3, 200e3, 300e3, 400e3, 500e3])
 plt.show()
 
 # 3 Read all product sales data and show it using a multiline plot
-sales_data = pd.read_csv("./resources/sales_data.csv")
+sales_data = pd.read_csv("resources/sales_data.csv")
 profit_list = sales_data['total_profit'].values
 plt.figure()
 headers = sales_data.columns.delete(0) # removing column 0 month_number

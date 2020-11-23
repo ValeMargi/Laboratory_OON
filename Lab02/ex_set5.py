@@ -2,16 +2,16 @@ import pandas as pd
 import json
 
 # Write a Python program to convert JSON data to Python objects.
-json_obj = '{ " Name ":" David " , " Class ":"I" , "Age ":6 }'
+json_obj = '{ "Name":"David" , "Class":"I" , "Age":6 }'
 python_obj = json.loads(json_obj)
-print('\ nJSON data :')
+print('\nJSON data :')
 print(python_obj)
-print('\ nName :', python_obj ['Name '])
-print('Class :', python_obj ['Class '])
-print('Age:', python_obj ['Age '])
+print('\nName :', python_obj['Name'])
+print('\nClass :', python_obj['Class'])
+print('\nAge:', python_obj['Age'])
 
 #our solution
-states = "../results/states.json"
+states = "./resources/states.json"
 with open(states, 'r') as read_file:
     python_dict = json.load(read_file)
     print(python_dict)
@@ -21,7 +21,7 @@ with open(states, 'r') as read_file:
 python_object = {
     'name': 'David', 'class': 'I', 'age': 6
 }
-with open("../results/pythonObject_to_JSON.json", "w") as write_file:
+with open("./resources/pythonObject_to_JSON.json", "w") as write_file:
     json.dump(python_object, write_file)
 
 print(type( python_object ))
@@ -75,18 +75,18 @@ print(json.dumps(python_dict, sort_keys=True, indent=4))
 states = "./resources/states.json"
 with open(states, 'r') as read_file:
     python_dict = json.load(read_file)
-with open("./resources/states_modified.json", "w") as wf:
+with open("resources/states_modified.json", "w") as wf:
 
  for i in python_dict["states"]:
      del i['area_codes']
  json.dump(python_dict, wf,indent=4)
 
 # sol prof
- with open('./resources/states.json') as f:
+ with open('resources/states.json') as f:
      state_data = json.load(f)
  for state in state_data['states']:
      del state['area_codes']
- with open('./resources/new_states.json', 'w') as fwrite:
+ with open('resources/new_states.json', 'w') as fwrite:
          json.dump(state_data, fwrite, indent=2)
 
 

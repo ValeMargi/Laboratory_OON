@@ -12,6 +12,9 @@ class SignalInformation(object):
         self._noise_power = 0
         self._latency = 0
 
+    # getter for all attribute
+    # setter for attribute that y want to change
+
     @property
     def signal_power(self):
         return self._signal_power

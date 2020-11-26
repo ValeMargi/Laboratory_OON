@@ -4,7 +4,7 @@ from Lab03.info import SignalInformation
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-
+import random as rand
 '''
 Define the class Node that has the following attributes:
 • label: string
@@ -91,6 +91,14 @@ class Line(object):
     @successive.setter
     def successive(self, successive):
         self._successive = successive
+
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, state):
+        self._state = state
 
     def latency_generation(self):
         latency = self.length / (c * 2 / 3)
@@ -237,33 +245,102 @@ class Network(object):
 
     # Lab4
     def find_best_snr(self, node_input, node_output):
-        my_df = network.weighted_path
-        my_df.sort_values(by=['snr'], inplace=True, ascending=False)
-        my_df_filtered = my_df[(my_df['path'].str[0] == node_input) & (my_df['path'].str[-2] == node_output)]
-        return my_df_filtered.head(1)
+       if(node_input != node_output):
+            my_df = network.weighted_path
+            my_df.sort_values(by=['snr'], inplace=True, ascending=False)
+            my_df_filtered = my_df[(my_df['path'].str[0] == node_input) & (my_df['path'].str[-2] == node_output)]
+            found = False
+            for i in my_df_filtered.values:
+                path = i[0] # path
+                node1 = path[0]
+                free_flag = True
+                for node_i in range(4,len(path),4):
+                    line = self.lines[node1+path[node_i]]
+                    if line.state != 'free':
+                        free_flag = False
+                        break
+                    node1 = path[node_i]
+                if free_flag == True:
+                    found = True
+                    break
+            if found == True:
+                return i
+            else:
+                return None
+       else:
+           return None
+
+   # return my_df_filtered.head(1)
 
     def find_best_latency(self, node_input, node_output):
-        my_df = network.weighted_path
-        my_df.sort_values(by=['latency'], inplace=True, ascending=True)
-        my_df_filtered = my_df[(my_df['path'].str[0] == node_input) & (my_df['path'].str[-2] == node_output)]
-        return my_df_filtered.head(1)
+       if( node_input != node_output):
+            my_df = network.weighted_path
+            my_df.sort_values(by=['latency'], inplace=True, ascending=True)
+            my_df_filtered = my_df[(my_df['path'].str[0] == node_input) & (my_df['path'].str[-2] == node_output)]
+            #return my_df_filtered.head(1)
+            found = False
+            for i in my_df_filtered.values:
+                path = i[0]
+                node1 = path[0]
+                free_flag = True
+                for node_i in range(4,len(path),4):
+                    line = self.lines[node1 + path[node_i]]
+                    if line.state != 'free':
+                        free_flag = False
+                        break
+                    node1 = path[node_i]
+                if free_flag == True:
+                    found = True
+                    break
+            if found == True:
+                return i
+            else:
+                return None
+       else:
+           return None
 
-    #def stream(self, label, connections):
-    ''' label vale snr o latency, in base a questo valore viene 
-    chiamato il metodo find_best_snr/latency
-    e dai valori di ritorno viene popolato l'oggetto Connection'''
+    def stream(self, connections, label='latency'):
+        '''label vale snr o latency, in base a questo valore viene
+        chiamato il metodo find_best_snr/latency
+        e dai valori di ritorno viene popolato l'oggetto Connection'''
+        for connection in connections:
+            if label == 'snr':
+                best_path = self.find_best_snr(connection.input, connection.output)
+                if best_path is not None:
+                    self.set_line_status(best_path[0])
+                    connection.snr = best_path[3] #.iloc[0]
+                    connection.latency = best_path[2] #.iloc[0]
+                else:
+                    connection.snr = 0
+                    connection.latency = None
+            else:
+                best_path = self.find_best_latency(connection.input, connection.output)
+                if best_path is not None:
+                    self.set_line_status(best_path[0])
+                    connection.snr = best_path[3] #.iloc[0]
+                    connection.latency = best_path[2] #['latency'].iloc[0]
+                else:
+                    connection.snr = 0
+                    connection.latency = None
 
-
-
-
+    def set_line_status(self, current_path):
+        node1 = current_path[0]
+        for node_i in current_path[4:len(current_path):4]:
+         line = self.lines[node1 + node_i]
+         line.state = 'occupied'
+         node1 = node_i
+         #self.lines[node1 + node_i] = line
 
 class Connection(object):
     def __init__(self, input, output, signal_power):
         self._input = input
         self._output = output
         self._signal_power = signal_power
-        self._latency = 0
-        self._snr = 0
+        self._latency = 0.00
+        self._snr = 0.00
+
+    def __repr__(self):
+        return "<Connection input:%s  output:%s signal_power:%d latency:%r snr:%f>" % (self.input, self.output, self.signal_power, self.latency, self.snr)
 
     @property
     def input(self):
@@ -279,7 +356,7 @@ class Connection(object):
 
     @property
     def latency(self):
-        return self.latency
+        return self._latency
 
     @property
     def snr(self):
@@ -290,7 +367,7 @@ class Connection(object):
         self._latency = latency
 
     @snr.setter
-    def latency(self, snr):
+    def snr(self, snr):
         self._snr = snr
 
 '''
@@ -337,10 +414,36 @@ if __name__ == '__main__':
     network.draw()
 
     network.weighted_path = df
-    print('\nBest_highest_snr with path A -> B: \n', network.find_best_snr('A', 'B'))
-    print('\nBest_highest_snr with path C -> D: \n', network.find_best_snr('C', 'D'))
-    print('\nBest_lowest_latency with path A -> B: \n', network.find_best_latency('A', 'B'))
-    print('\nBest_lowest_latency with path C -> D: \n', network.find_best_latency('C', 'D'))
+   # print('\nBest_highest_snr with path A -> B: \n', network.find_best_snr('A', 'B'))
+   # print('\nBest_highest_snr with path C -> D: \n', network.find_best_snr('C', 'D'))
+   # print('\nBest_lowest_latency with path A -> B: \n', network.find_best_latency('A', 'B'))
+   # print('\nBest_lowest_latency with path C -> D: \n', network.find_best_latency('C', 'D'))
+   # print('\nBest_lowest_latency with path E -> D: \n', network.find_best_latency('E', 'D'))
+
+    connections = []
+    nodes = 'ABCDEF'
+    for i in range(0, 100):
+        input_rand = rand.choice(nodes)
+        while True:
+            output_rand = rand.choice(nodes)
+            if (input_rand != output_rand):
+                break
+        connections.append(Connection(input_rand, output_rand, 1.00))
+    network.stream(connections, 'snr')
+    #print(connections)
+
+    for i in range(0, 100):
+        y = json.dumps(connections[i].__dict__)
+        print(y)
+
+    network.stream(connections)
+    #print(connections)
+
+    print('/n/n')
+
+    for i in range(0,100):
+        y = json.dumps(connections[i].__dict__)
+        print(y)
 
 
 

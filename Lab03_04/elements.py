@@ -260,11 +260,11 @@ class Network(object):
             if best_path is not None:
                 path_label = ''
                 for index in range(0, len(best_path), 3):
-                    path_label+= best_path[index]
+                    path_label += best_path[index]
                 si = SignalInformation(connection.signal_power, path_label)
                 self.propagate(si)
                 self.set_line_status(best_path)
-                connection.snr = self.snr_dB(si.signal_power, si.noise_power)
+                connection.snr = self.snr_dB(1e-3 * si.signal_power, si.noise_power)
                 connection.latency = si.latency
             else:
                 connection.snr = 0
@@ -371,10 +371,10 @@ if __name__ == '__main__':
         input_rand = rand.choice(nodes)
         while True:
             output_rand = rand.choice(nodes)
-            if (input_rand != output_rand):
+            if input_rand != output_rand:
                 break
         connections.append(Connection(input_rand, output_rand, 1.00))
-
+        
     # Stream with label='snr'
     network.stream(connections, 'snr')
 
@@ -387,23 +387,26 @@ if __name__ == '__main__':
 
     for i in range(0, 100):
         y = json.dumps(connections[i].__dict__)
-        print(y)
+        #print(y)
 
     # Stream with label='latency'
     network.stream(connections)
 
+    for i in range(0, 100):
+        y = json.dumps(connections[i].__dict__)
+        # print(y)
+
     # plot the distribution of all the latencies
-    '''
-    latency_connections = [c.latency for c in connections]
+    '''latency_connections = [c.latency for c in connections]
     plt.figure()
     plt.hist(latency_connections, label='Latency distribution')
     plt.title('Latency distribution')
     plt.show()
     '''
 
+    '''print('Test path A->B\n\n\n')
+    test_connection = []
+    test_connection.append(Connection('A', 'B', 1))
+    network.stream(test_connection, 'snr')
+    print('Test_connection: \n\n ', test_connection)'''
 
-    print('/n/n')
-
-    for i in range(0, 100):
-        y = json.dumps(connections[i].__dict__)
-        print(y)

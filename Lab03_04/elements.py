@@ -81,7 +81,7 @@ class Line(object):
         return latency
 
     def noise_generation(self, signal_power):
-        noise = 1e-3 * signal_power * self.length
+        noise = 1e-9 * signal_power * self.length
         return noise
 
     def propagate(self, signal_information):
@@ -261,7 +261,7 @@ class Network(object):
                 si = SignalInformation(connection.signal_power, path_label)
                 self.propagate(si)
                 self.set_line_status(best_path)
-                connection.snr = self.snr_dB(1e-3 * si.signal_power, si.noise_power)
+                connection.snr = self.snr_dB(si.signal_power, si.noise_power)
                 connection.latency = si.latency
             else:
                 connection.snr = 0
@@ -341,7 +341,7 @@ if __name__ == '__main__':
                         path_string += node + '->'
                     paths.append(path_string[:-2])
                     # Propagation
-                    signal_information = SignalInformation(1, path)
+                    signal_information = SignalInformation(1e-3, path)
                     signal_information = network.propagate(signal_information)
                     latencies.append(signal_information.latency)
                     noises.append(signal_information.noise_power)
@@ -370,8 +370,14 @@ if __name__ == '__main__':
             output_rand = rand.choice(nodes)
             if input_rand != output_rand:
                 break
-        connections.append(Connection(input_rand, output_rand, 1.00))
-        
+        connections.append(Connection(input_rand, output_rand, 1e-3))
+
+    print('Test path A->B\n\n\n')
+    test_connection = []
+    test_connection.append(Connection('A', 'B', 1e-3))
+    network.stream(test_connection, 'snr')
+    print('Test_connection: \n\n ', test_connection)
+
     # Stream with label='snr'
     network.stream(connections, 'snr')
 

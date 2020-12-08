@@ -1,6 +1,5 @@
 from scipy.constants import c
-from Lab05.core.classes.Info.Lightpath import Lightpath
-from Lab05.core.classes.Info.SignalInformation import SignalInformation
+from Lab06.core.classes.Info.Lightpath import Lightpath
 
 class Line(object):
     def __init__(self, line_dict):

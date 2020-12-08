@@ -1,7 +1,7 @@
 import pandas as pd
-from Lab05.core.classes.Elements.Node import Node
-from Lab05.core.classes.Elements.Line import Line
-from Lab05.core.classes.Info.Lightpath import Lightpath
+from Lab06.core.classes.Elements.Node import Node
+from Lab06.core.classes.Elements.Line import Line
+from Lab06.core.classes.Info.Lightpath import Lightpath
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -122,7 +122,15 @@ class Network(object):
 
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
+            node.switching_matrix = {}
             for connected_node in node.connected_nodes:
+                node.switching_matrix[connected_node] = {}
+                for connected_node_i in node.connected_nodes:
+                    if connected_node_i == connected_node:
+                        node.switching_matrix[connected_node][connected_node_i] = np.zeros(10, np.int8)
+                    else:
+                        node.switching_matrix[connected_node][connected_node_i] = np.ones(10, np.int8)
+
                 line_label = node_label + connected_node
                 line = lines_dict[line_label]
                 line.successive[connected_node] = nodes_dict[connected_node]

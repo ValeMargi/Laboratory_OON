@@ -15,6 +15,30 @@ class Network(object):
         self._weighted_path = pd.DataFrame()
         self._route_space = pd.DataFrame()
 
+        paths = []
+        channel_0 = []
+        channel_1 = []
+        channel_2 = []
+        channel_3 = []
+        channel_4 = []
+        channel_5 = []
+        channel_6 = []
+        channel_7 = []
+        channel_8 = []
+        channel_9 = []
+        self._route_space['path'] = paths
+        self._route_space['0'] = channel_0
+        self._route_space['1'] = channel_1
+        self._route_space['2'] = channel_2
+        self._route_space['3'] = channel_3
+        self._route_space['4'] = channel_4
+        self._route_space['5'] = channel_5
+        self._route_space['6'] = channel_6
+        self._route_space['7'] = channel_7
+        self._route_space['8'] = channel_8
+        self._route_space['9'] = channel_9
+
+
         for node_label in node_json:
             # Create the node instance
             node_dict = node_json[node_label]
@@ -55,7 +79,7 @@ class Network(object):
         return self._route_space
 
     @route_space.setter
-    def weighted_path(self, route_space):
+    def route_space(self, route_space):
         self._route_space = route_space
 
     def draw(self):
@@ -173,6 +197,19 @@ class Network(object):
             else:
                 connection.snr = 0
                 connection.latency = None
+
+            if best_path not in self.route_space.path.values:
+                row_route_space = [
+                    {'path': best_path, '0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None,
+                     '7': None, '8': None, '9': None}]
+                new_df_route_space = pd.DataFrame.from_dict(row_route_space)
+                self.route_space = new_df_route_space.copy()
+                #self.route_space.append(new_df_route_space, sort=False)
+                current_index = self.route_space.index.max()
+            else:
+                current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)
+            self.route_space.at[current_index, str(channel + 1)] = 'occupied'
+            print(self.route_space)
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)

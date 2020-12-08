@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     for i in range(0, 100):
         y = json.dumps(connections[i].__dict__)
-        # print(y)
+        print(y)
 
     
     # Stream with label='latency'

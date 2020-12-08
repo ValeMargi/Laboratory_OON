@@ -43,24 +43,11 @@ class Line(object):
         noise = 1e-9 * signal_power * self.length
         return noise
 
-    def propagate(self, lightpath:Lightpath):
-        if lightpath.channel is not None:
-            self.state.insert(lightpath.channel, 'occupied')
+    def propagate(self, signal_information):
 
-        # Update latency
-        latency = self.latency_generation()
-        lightpath.add_latency(latency)
-
-        # Update noise
-        signal_power = lightpath.signal_power
-        noise = self.noise_generation(signal_power)
-        lightpath.add_noise(noise)
-
-        node = self.successive[lightpath.path[0]]
-        lightpath = node.propagate(lightpath)
-        return lightpath
-
-    def propagate(self, signal_information:SignalInformation):
+        if( type(signal_information) is Lightpath):
+            if signal_information.channel is not None:
+                self.state[signal_information.channel] = 'occupied'
 
         # Update latency
         latency = self.latency_generation()

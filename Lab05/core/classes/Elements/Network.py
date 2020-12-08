@@ -151,9 +151,11 @@ class Network(object):
         first_line = self.lines[path[0] + node1]
 
         for index in range(10):
+            node1 = path[3]
             if first_line.state[index] is None:
                 for node_i in range(6, len(path), 3):
                     line = self.lines[node1 + path[node_i]]
+                    node1 = path[node_i]
                     if line.state[index] is not None:
                         occupied = True
                         break
@@ -161,7 +163,7 @@ class Network(object):
                     break
                 occupied = False
 
-        if not occupied and index < len(first_line.state):
+        if not occupied and index < len(first_line.state)-1:
             return index
         else:
             return None
@@ -196,20 +198,24 @@ class Network(object):
                 connection.latency = lightpath.latency
             else:
                 connection.snr = 0
-                connection.latency = None
+                connection.latency = -1 #None
 
-            if best_path not in self.route_space.path.values:
-                row_route_space = [
-                    {'path': best_path, '0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None,
-                     '7': None, '8': None, '9': None}]
-                new_df_route_space = pd.DataFrame.from_dict(row_route_space)
-                self.route_space = new_df_route_space.copy()
-                #self.route_space.append(new_df_route_space, sort=False)
-                current_index = self.route_space.index.max()
-            else:
-                current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)
-            self.route_space.at[current_index, str(channel + 1)] = 'occupied'
-            print(self.route_space)
+            if best_path is not None:
+                if best_path not in self.route_space['path']:
+                    row_route_space = [
+                        {'path': best_path, '0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None,
+                         '7': None, '8': None, '9': None}]
+                    new_df_route_space = pd.DataFrame.from_dict(row_route_space)
+                    if(self.route_space.index.empty is True ):
+                       self.route_space = new_df_route_space.copy()
+                    else:
+                        self.route_space = self.route_space.append(new_df_route_space, ignore_index = True, sort=None)
+                    #self.route_space.append(new_df_route_space, sort=False)
+                    current_index = self.route_space.index.max()
+                else:
+                    current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)
+                self.route_space.at[current_index, str(channel)] = 'occupied'
+
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)

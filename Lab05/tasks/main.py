@@ -62,11 +62,11 @@ if __name__ == '__main__':
     # Creating dataframe from csv file
     #df_ = pd.read_csv("../results/network_df.csv")
     network.weighted_path = df
-    print('\nBest_highest_snr with path A -> B: \n', network.find_best_snr('A', 'B'))
-    print('\nBest_highest_snr with path C -> D: \n', network.find_best_snr('C', 'D'))
-    print('\nBest_lowest_latency with path A -> B: \n', network.find_best_latency('A', 'B'))
-    print('\nBest_lowest_latency with path C -> D: \n', network.find_best_latency('C', 'D'))
-    print('\nBest_lowest_latency with path E -> D: \n', network.find_best_latency('E', 'D'))
+    #print('\nBest_highest_snr with path A -> B: \n', network.find_best_snr('A', 'B'))
+    #print('\nBest_highest_snr with path C -> D: \n', network.find_best_snr('C', 'D'))
+    #print('\nBest_lowest_latency with path A -> B: \n', network.find_best_latency('A', 'B'))
+    #print('\nBest_lowest_latency with path C -> D: \n', network.find_best_latency('C', 'D'))
+    #print('\nBest_lowest_latency with path E -> D: \n', network.find_best_latency('E', 'D'))
     
 
     connections = []
@@ -81,14 +81,18 @@ if __name__ == '__main__':
 
     
     print('*************************************************************')
-    print('Test path A->B\n\n\n')
-    test_connection = []
-    test_connection.append(Connection('A', 'B', 1e-3))
-    network.stream(test_connection, 'snr')
-    print('Test_connection: \n\n ', test_connection)
+    '''print('Test path A->B\n\n\n')
+        test_connection = []
+        test_connection.append(Connection('A', 'B', 1e-3))
+        network.stream(test_connection, 'snr')
+        print('Test_connection: \n\n ', test_connection)
+    '''
 
-    # Stream with label='snr'
+    print('Stream with label=snr')
     network.stream(connections, 'snr')
+
+    print('Printing route_space\n\n')
+    print(network.route_space)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections]
@@ -109,7 +113,7 @@ if __name__ == '__main__':
         y = json.dumps(connections[i].__dict__)
         # print(y)
 
-    
+
     # plot the distribution of all the latencies
     latency_connections = [c.latency for c in connections]
     plt.figure()

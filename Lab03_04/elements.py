@@ -96,7 +96,6 @@ class Line(object):
 
         node = self.successive[signal_information.path[0]]
         signal_information = node.propagate(signal_information)
-        # mettere il valore di ritorno in caso di ricorsione
         return signal_information
 
 
@@ -221,8 +220,6 @@ class Network(object):
                 return None, None
         else:
             return None, None
-
-    # return my_df_filtered.head(1)
 
     def find_best_latency(self, node_input, node_output):
         if (node_input != node_output):

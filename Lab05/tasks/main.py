@@ -105,7 +105,7 @@ if __name__ == '__main__':
         y = json.dumps(connections[i].__dict__)
         print(y)
 
-    
+
     # Stream with label='latency'
     network.stream(connections)
 

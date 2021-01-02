@@ -1,5 +1,5 @@
 from scipy.constants import c
-from Lab06.core.classes.Info.Lightpath import Lightpath
+from Lab07.core.Info.Lightpath import Lightpath
 import numpy as np
 class Line(object):
     def __init__(self, line_dict):

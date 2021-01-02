@@ -38,7 +38,6 @@ class Network(object):
         self._route_space['8'] = channel_8
         self._route_space['9'] = channel_9
 
-
         for node_label in node_json:
             # Create the node instance
             node_dict = node_json[node_label]
@@ -160,18 +159,18 @@ class Network(object):
 
         for index in range(10):
             node1 = path[3]
-            if first_line.state[index] is None:
+            if first_line.state[index] == 1:  # Free
                 for node_i in range(6, len(path), 3):
                     line = self.lines[node1 + path[node_i]]
                     node1 = path[node_i]
-                    if line.state[index] is not None:
+                    if line.state[index] == 1:
                         occupied = True
                         break
                 if not occupied:
                     break
                 occupied = False
 
-        if not occupied and index < len(first_line.state)-1:
+        if not occupied and index < len(first_line.state) - 1:
             return index
         else:
             return None
@@ -201,29 +200,46 @@ class Network(object):
                     path_label += best_path[index]
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
-                #DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
+                # DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
                 connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                 connection.latency = lightpath.latency
             else:
                 connection.snr = 0
-                connection.latency = -1 #None
+                connection.latency = -1  # None
 
             if best_path is not None:
-                if best_path not in self.route_space['path']:
+                if self.route_space.path.str.contains(best_path) is False:
                     row_route_space = [
-                        {'path': best_path, '0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None,
-                         '7': None, '8': None, '9': None}]
+                        {'path': best_path, '0': 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, '6': 1,
+                         '7': 1, '8': 1, '9': 1}]
                     new_df_route_space = pd.DataFrame.from_dict(row_route_space)
-                    if(self.route_space.index.empty is True ):
-                       self.route_space = new_df_route_space.copy()
+                    if (self.route_space.index.empty is True):
+                        self.route_space = new_df_route_space.copy()
                     else:
-                        self.route_space = self.route_space.append(new_df_route_space, ignore_index = True, sort=None)
-                    #self.route_space.append(new_df_route_space, sort=False)
+                        self.route_space = self.route_space.append(new_df_route_space, ignore_index=True, sort=None)
+                    # self.route_space.append(new_df_route_space, sort=False)
                     current_index = self.route_space.index.max()
                 else:
                     current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)
-                self.route_space.at[current_index, str(channel)] = 'occupied'
-
+                #self.route_space.at[current_index, str(channel)] = 0  # occupied
+                self.update_routing_space(best_path, channel, current_index)
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)
+
+    def update_routing_space(self, best_path, channel, current_index):
+        node1 = 3
+        first_line = self.lines[best_path[0] + best_path[node1]]
+        print('path  ', best_path)
+        result = first_line.state
+        for node_i in range(6, len(best_path), 3):
+            line = self.lines[best_path[node1] + best_path[node_i]]
+            result = np.multiply(result, line.state)
+            result = np.multiply(self.nodes[best_path[node1]].switching_matrix[best_path[node1-3]][best_path[node_i]], result)
+            node1 = node_i
+            print(result)
+
+        for i in range(10):
+            self.route_space.at[current_index, str(i)] = result[i]
+        print(self.route_space)
+

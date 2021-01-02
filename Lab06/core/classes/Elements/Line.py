@@ -1,14 +1,13 @@
 from scipy.constants import c
 from Lab06.core.classes.Info.Lightpath import Lightpath
-
+import numpy as np
 class Line(object):
     def __init__(self, line_dict):
         self._label = line_dict['label']
         self._length = line_dict['length']
         self._successive = {}
         self._state = []
-        for i in range(10):
-            self._state.append(None)
+        self._state = np.ones(10, np.int8) #Free
 
     @property
     def label(self):
@@ -46,7 +45,7 @@ class Line(object):
 
         if( type(signal_information) is Lightpath):
             if signal_information.channel is not None:
-                self.state[signal_information.channel] = 'occupied'
+                self.state[signal_information.channel] = 0 #'occupied'
 
         # Update latency
         latency = self.latency_generation()

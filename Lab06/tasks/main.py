@@ -86,6 +86,7 @@ if __name__ == '__main__':
         print('Test_connection: \n\n ', test_connection)
     '''
 
+
     print('Stream with label=snr')
     network.stream(connections, 'snr')
 
@@ -103,13 +104,14 @@ if __name__ == '__main__':
         y = json.dumps(connections[i].__dict__)
         print(y)
 
+    
 
     # Stream with label='latency'
     network.stream(connections)
 
     for i in range(0, 100):
         y = json.dumps(connections[i].__dict__)
-        # print(y)
+        print(y)
 
 
     # plot the distribution of all the latencies

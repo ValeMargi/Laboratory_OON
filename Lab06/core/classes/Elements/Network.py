@@ -163,14 +163,16 @@ class Network(object):
                 for node_i in range(6, len(path), 3):
                     line = self.lines[node1 + path[node_i]]
                     node1 = path[node_i]
-                    if line.state[index] == 1:
+                    if line.state[index] == 0:  # occupied
                         occupied = True
                         break
                 if not occupied:
                     break
                 occupied = False
+        else:
+            return None
 
-        if not occupied and index < len(first_line.state) - 1:
+        if not occupied:
             return index
         else:
             return None
@@ -198,6 +200,10 @@ class Network(object):
                 path_label = ''
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
+                '''print("*****")
+                print("BEST PATH: ", best_path)
+                print("CHANNEL OCCUPIED: ", channel)
+                print("*****")'''
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
                 # DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
@@ -208,7 +214,7 @@ class Network(object):
                 connection.latency = -1  # None
 
             if best_path is not None:
-                if self.route_space.path.str.contains(best_path) is False:
+                if not (self.route_space.path.astype('str') == best_path).any():
                     row_route_space = [
                         {'path': best_path, '0': 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, '6': 1,
                          '7': 1, '8': 1, '9': 1}]
@@ -217,11 +223,10 @@ class Network(object):
                         self.route_space = new_df_route_space.copy()
                     else:
                         self.route_space = self.route_space.append(new_df_route_space, ignore_index=True, sort=None)
-                    # self.route_space.append(new_df_route_space, sort=False)
                     current_index = self.route_space.index.max()
+
                 else:
-                    current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)
-                #self.route_space.at[current_index, str(channel)] = 0  # occupied
+                    current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
                 self.update_routing_space(best_path, channel, current_index)
 
     def snr_dB(self, signal_power, noise_power):
@@ -230,16 +235,16 @@ class Network(object):
     def update_routing_space(self, best_path, channel, current_index):
         node1 = 3
         first_line = self.lines[best_path[0] + best_path[node1]]
-        print('path  ', best_path)
+        #print('path  ', best_path)
         result = first_line.state
         for node_i in range(6, len(best_path), 3):
             line = self.lines[best_path[node1] + best_path[node_i]]
             result = np.multiply(result, line.state)
             result = np.multiply(self.nodes[best_path[node1]].switching_matrix[best_path[node1-3]][best_path[node_i]], result)
             node1 = node_i
-            print(result)
+            #print(result)
 
         for i in range(10):
             self.route_space.at[current_index, str(i)] = result[i]
-        print(self.route_space)
+        #print(self.route_space)
 

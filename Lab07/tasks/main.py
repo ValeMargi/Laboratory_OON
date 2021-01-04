@@ -1,6 +1,5 @@
 from Lab07.core.Info.SignalInformation import SignalInformation
-
-from Lab07.core.Elements.Network import Line, Network
+from Lab07.core.Elements.Network import Network
 from Lab07.core.Elements.Connection import Connection
 
 import pandas as pd
@@ -11,7 +10,7 @@ import random as rand
 
 if __name__ == '__main__':
 
-    network = Network('../resources/nodes_full.json') # '../resources/nodes_full.json', '../resources/nodes_not_full.json'
+    network = Network('../resources/nodes_not_full.json') # '../resources/nodes_full.json'
     network.connect()
     node_labels = network.nodes.keys()
     pairs = []
@@ -97,7 +96,9 @@ if __name__ == '__main__':
     snr_connections = [c.snr for c in connections]
     plt.figure()
     plt.hist(snr_connections, label='Snr distribution')
-    plt.title('SNR distribution')
+    plt.title('SNR distribution with not full switching matrix')
+    plt.xlabel('SNR [dB]')
+    plt.ylabel('Connections')
     plt.show()
 
     for i in range(0, 100):

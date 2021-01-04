@@ -15,6 +15,8 @@ class Network(object):
         self._weighted_path = pd.DataFrame()
         self._route_space = pd.DataFrame()
 
+        self._switching_matrix = {}
+
         paths = []
         channel_0 = []
         channel_1 = []
@@ -57,6 +59,10 @@ class Network(object):
                 line = Line(line_dict)
                 self._lines[line_label] = line
 
+            self._switching_matrix[node_label] = node_dict['switching_matrix']
+            print("switching matrix ", self.switching_matrix)
+
+
     @property
     def nodes(self):
         return self._nodes
@@ -80,6 +86,14 @@ class Network(object):
     @route_space.setter
     def route_space(self, route_space):
         self._route_space = route_space
+
+    @property
+    def switching_matrix(self):
+        return self._switching_matrix
+
+    @switching_matrix.setter
+    def switching_matrix(self, switching_matrix):
+        self._switching_matrix = switching_matrix
 
     def draw(self):
         nodes = self.nodes

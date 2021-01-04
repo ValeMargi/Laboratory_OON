@@ -1,7 +1,7 @@
-from Lab06.core.classes.Info.SignalInformation import SignalInformation
+from Lab07.core.Info.SignalInformation import SignalInformation
 
-from Lab06.core.classes.Elements.Network import Line, Network
-from Lab06.core.classes.Elements.Connection import Connection
+from Lab07.core.Elements.Network import Line, Network
+from Lab07.core.Elements.Connection import Connection
 
 import pandas as pd
 import json
@@ -11,7 +11,7 @@ import random as rand
 
 if __name__ == '__main__':
 
-    network = Network('../resources/nodes.json')
+    network = Network('../resources/nodes_full.json') # '../resources/nodes_full.json', '../resources/nodes_not_full.json'
     network.connect()
     node_labels = network.nodes.keys()
     pairs = []

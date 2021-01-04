@@ -62,6 +62,11 @@ if __name__ == '__main__':
     # Creating dataframe from csv file
     #df_ = pd.read_csv("../results/network_df.csv")
     network.weighted_path = df
+
+    # Create route space
+    network.update_routing_space()
+
+
     #print('\nBest_highest_snr with path A -> B: \n', network.find_best_snr('A', 'B'))
     #print('\nBest_highest_snr with path C -> D: \n', network.find_best_snr('C', 'D'))
     #print('\nBest_lowest_latency with path A -> B: \n', network.find_best_latency('A', 'B'))

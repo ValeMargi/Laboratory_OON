@@ -146,27 +146,13 @@ class Network(object):
         return None, None, None
 
     def channel_free(self, path):
-        occupied = False
-        node1 = path[3]
-        first_line = self.lines[path[0] + node1]
+        path_in_route_space = self.route_space[self.route_space['path'] == path]
+        for i in range(10):
+            if path_in_route_space[str(i)].values[0] is None:
 
-        for index in range(10):
-            node1 = path[3]
-            if first_line.state[index] is None:
-                for node_i in range(6, len(path), 3):
-                    line = self.lines[node1 + path[node_i]]
-                    node1 = path[node_i]
-                    if line.state[index] is not None:
-                        occupied = True
-                        break
-                if not occupied:
-                    break
-                occupied = False
+                return i
+        return None
 
-        if not occupied and index < len(first_line.state)-1:
-            return index
-        else:
-            return None
 
     def find_best_latency(self, node_input, node_output):
         if node_input != node_output:
@@ -194,28 +180,33 @@ class Network(object):
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
                 #DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
+                for line_path_i in range(0, len(best_path)-1, 3):
+                    current_index = self.route_space[self.route_space['path'] == best_path[line_path_i:line_path_i+4]].index.values.astype(int)
+                    self.route_space.at[current_index, str(channel)] = 'occupied'
+                if len(best_path) >= 4:
+                    current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)
+                    self.route_space.at[current_index, str(channel)] = 'occupied'
+                #print(self.route_space)
                 connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                 connection.latency = lightpath.latency
             else:
                 connection.snr = 0
                 connection.latency = -1 #None
 
-            if best_path is not None:
-                if best_path not in self.route_space['path']:
-                    row_route_space = [
-                        {'path': best_path, '0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None,
-                         '7': None, '8': None, '9': None}]
-                    new_df_route_space = pd.DataFrame.from_dict(row_route_space)
-                    if(self.route_space.index.empty is True ):
-                       self.route_space = new_df_route_space.copy()
-                    else:
-                        self.route_space = self.route_space.append(new_df_route_space, ignore_index = True, sort=None)
-                    #self.route_space.append(new_df_route_space, sort=False)
-                    current_index = self.route_space.index.max()
-                else:
-                    current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)
-                self.route_space.at[current_index, str(channel)] = 'occupied'
-
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)
+
+    def update_routing_space(self):
+        for path in self.weighted_path['path']:
+            row_route_space = [
+                {'path': path, '0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None,
+                 '7': None, '8': None, '9': None}]
+            new_df_route_space = pd.DataFrame.from_dict(row_route_space)
+            if (self.route_space.index.empty is True):
+                self.route_space = new_df_route_space.copy()
+            else:
+                self.route_space = self.route_space.append(new_df_route_space, ignore_index=True, sort=None)
+
+
+

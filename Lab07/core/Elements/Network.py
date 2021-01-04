@@ -14,7 +14,6 @@ class Network(object):
         self._lines = {}
         self._weighted_path = pd.DataFrame()
         self._route_space = pd.DataFrame()
-
         self._switching_matrix = {}
 
         paths = []
@@ -60,8 +59,7 @@ class Network(object):
                 self._lines[line_label] = line
 
             self._switching_matrix[node_label] = node_dict['switching_matrix']
-            print("switching matrix ", self.switching_matrix)
-
+            # print("switching matrix ", self.switching_matrix)
 
     @property
     def nodes(self):
@@ -135,14 +133,18 @@ class Network(object):
 
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
-            node.switching_matrix = {}
+            node.switching_matrix = self.switching_matrix[node_label]
+            print("Node: ",node_label)
+            print("Switching matrix in node: ", node.switching_matrix)
             for connected_node in node.connected_nodes:
+                '''
                 node.switching_matrix[connected_node] = {}
                 for connected_node_i in node.connected_nodes:
                     if connected_node_i == connected_node:
                         node.switching_matrix[connected_node][connected_node_i] = np.zeros(10, np.int8)
                     else:
                         node.switching_matrix[connected_node][connected_node_i] = np.ones(10, np.int8)
+                '''
 
                 line_label = node_label + connected_node
                 line = lines_dict[line_label]

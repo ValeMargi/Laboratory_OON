@@ -105,7 +105,7 @@ if __name__ == '__main__':
         print(y)
 
     
-
+    '''
     # Stream with label='latency'
     network.stream(connections)
 
@@ -120,3 +120,4 @@ if __name__ == '__main__':
     plt.hist(latency_connections, label='Latency distribution')
     plt.title('Latency distribution')
     plt.show()
+    '''

@@ -195,7 +195,7 @@ class Network(object):
                 connection.snr = 0
                 connection.latency = -1  # None
 
-            #print("****\nBest path: ", best_path, " channel: ", channel, "\n")
+            # print("****\nBest path: ", best_path, " channel: ", channel, "\n")
             self.update_routing_space(best_path, route_space_empty=0)  # 0= route space not empty
 
     def snr_dB(self, signal_power, noise_power):
@@ -203,6 +203,7 @@ class Network(object):
 
     def update_routing_space(self, best_path, route_space_empty):
         if route_space_empty == 1:
+            # first initialization of the route space
             for path in self.weighted_path['path']:
                 new_df_route_space = pd.DataFrame(
                     {'path': path, '0': 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, '6': 1, '7': 1, '8': 1, '9': 1},
@@ -214,12 +215,10 @@ class Network(object):
             # print(self.route_space)
         else:
             if best_path is not None:
-
-                # Update first line in the path
+                # Aggiorno il primo arco del path in esame
                 current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
                 first_line = self.lines[best_path[0] + best_path[3]]
-                for i in range(10):
-                    self.route_space.at[current_index, str(i)] = first_line.state[i]
+                for i in range(10): self.route_space.at[current_index, str(i)] = first_line.state[i]
 
                 for path in self.route_space['path']:
                     node1 = 3
@@ -228,19 +227,18 @@ class Network(object):
                     for node_i in range(6, len(path), 3):
                         line = self.lines[path[node1] + path[node_i]]
                         result = np.multiply(result, line.state)
-                        result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]], result)
+                        result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]],
+                                             result)
 
-                        # Update other line occurances in the route space
+                        current_index = self.route_space[self.route_space['path'] == path].index.values[0]
+                        for i in range(10): self.route_space.at[current_index, str(i)] = result[i]
+
+                        # Aggiorno le entry nel route space corrispondenti ai singoli archi presenti nel path
+                        # solo se il path in esame è il path aggiornato nel metodo stream()
                         if best_path == path:
                             current_index = self.route_space[
                                 self.route_space['path'] == path[node1:node_i + 1]].index.values.astype(int)
-                            for i in range(10):
-                                self.route_space.at[current_index, str(i)] = line.state[i]
-
+                            for i in range(10): self.route_space.at[current_index, str(i)] = line.state[i]
                         node1 = node_i  # for
 
-                    for i in range(10):
-                        current_index = self.route_space[self.route_space['path'] == path].index.values[0]
-                        self.route_space.at[current_index, str(i)] = result[i]
                 # print(self.route_space)
-

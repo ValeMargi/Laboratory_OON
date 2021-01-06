@@ -60,6 +60,12 @@ if __name__ == '__main__':
     # Creating dataframe from csv file
     #df_ = pd.read_csv("../results/network_df.csv")
     network.weighted_path = df
+
+    # Create route space
+    network.update_routing_space(None, route_space_empty=1) # 1= route space emoty
+    print("Route space initial", network.route_space)
+
+
     #print('\nBest_highest_snr with path A -> B: \n', network.find_best_snr('A', 'B'))
     #print('\nBest_highest_snr with path C -> D: \n', network.find_best_snr('C', 'D'))
     #print('\nBest_lowest_latency with path A -> B: \n', network.find_best_latency('A', 'B'))
@@ -78,8 +84,9 @@ if __name__ == '__main__':
         connections.append(Connection(input_rand, output_rand, 1e-3))
 
     
+    '''
     print('*************************************************************')
-    '''print('Test path A->B\n\n\n')
+    print('Test path A->B\n\n\n')
         test_connection = []
         test_connection.append(Connection('A', 'B', 1e-3))
         network.stream(test_connection, 'snr')
@@ -90,7 +97,7 @@ if __name__ == '__main__':
     print('Stream with label=snr')
     network.stream(connections, 'snr')
 
-    print('Printing route_space\n\n')
+    print('Printing route_space after stream with 100 connections label=snr\n\n')
     print(network.route_space)
 
     # plot the distribution of all the snrs

@@ -153,29 +153,11 @@ class Network(object):
         return None, None, None
 
     def channel_free(self, path):
-        occupied = False
-        node1 = path[3]
-        first_line = self.lines[path[0] + node1]
-
-        for index in range(10):
-            node1 = path[3]
-            if first_line.state[index] == 1:  # Free
-                for node_i in range(6, len(path), 3):
-                    line = self.lines[node1 + path[node_i]]
-                    node1 = path[node_i]
-                    if line.state[index] == 0:  # occupied
-                        occupied = True
-                        break
-                if not occupied:
-                    break
-                occupied = False
-        else:
-            return None
-
-        if not occupied:
-            return index
-        else:
-            return None
+        path_in_route_space = self.route_space[self.route_space['path'] == path]
+        for i in range(10):
+            if path_in_route_space[str(i)].values[0] == 1:
+                return i
+        return None
 
     def find_best_latency(self, node_input, node_output):
         if node_input != node_output:
@@ -213,38 +195,52 @@ class Network(object):
                 connection.snr = 0
                 connection.latency = -1  # None
 
-            if best_path is not None:
-                if not (self.route_space.path.astype('str') == best_path).any():
-                    row_route_space = [
-                        {'path': best_path, '0': 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, '6': 1,
-                         '7': 1, '8': 1, '9': 1}]
-                    new_df_route_space = pd.DataFrame.from_dict(row_route_space)
-                    if (self.route_space.index.empty is True):
-                        self.route_space = new_df_route_space.copy()
-                    else:
-                        self.route_space = self.route_space.append(new_df_route_space, ignore_index=True, sort=None)
-                    current_index = self.route_space.index.max()
-
-                else:
-                    current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
-                self.update_routing_space(best_path, channel, current_index)
+            #print("****\nBest path: ", best_path, " channel: ", channel, "\n")
+            self.update_routing_space(best_path, route_space_empty=0)  # 0= route space not empty
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)
 
-    def update_routing_space(self, best_path, channel, current_index):
-        node1 = 3
-        first_line = self.lines[best_path[0] + best_path[node1]]
-        #print('path  ', best_path)
-        result = first_line.state
-        for node_i in range(6, len(best_path), 3):
-            line = self.lines[best_path[node1] + best_path[node_i]]
-            result = np.multiply(result, line.state)
-            result = np.multiply(self.nodes[best_path[node1]].switching_matrix[best_path[node1-3]][best_path[node_i]], result)
-            node1 = node_i
-            #print(result)
+    def update_routing_space(self, best_path, route_space_empty):
+        if route_space_empty == 1:
+            for path in self.weighted_path['path']:
+                new_df_route_space = pd.DataFrame(
+                    {'path': path, '0': 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, '6': 1, '7': 1, '8': 1, '9': 1},
+                    index=[0])
+                if (self.route_space.index.empty is True):
+                    self.route_space = new_df_route_space.copy()
+                else:
+                    self.route_space = self.route_space.append(new_df_route_space, ignore_index=True, sort=None)
+            # print(self.route_space)
+        else:
+            if best_path is not None:
 
-        for i in range(10):
-            self.route_space.at[current_index, str(i)] = result[i]
-        #print(self.route_space)
+                # Update first line in the path
+                current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
+                first_line = self.lines[best_path[0] + best_path[3]]
+                for i in range(10):
+                    self.route_space.at[current_index, str(i)] = first_line.state[i]
+
+                for path in self.route_space['path']:
+                    node1 = 3
+                    first_line = self.lines[path[0] + path[node1]]
+                    result = first_line.state
+                    for node_i in range(6, len(path), 3):
+                        line = self.lines[path[node1] + path[node_i]]
+                        result = np.multiply(result, line.state)
+                        result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]], result)
+
+                        # Update other line occurances in the route space
+                        if best_path == path:
+                            current_index = self.route_space[
+                                self.route_space['path'] == path[node1:node_i + 1]].index.values.astype(int)
+                            for i in range(10):
+                                self.route_space.at[current_index, str(i)] = line.state[i]
+
+                        node1 = node_i  # for
+
+                    for i in range(10):
+                        current_index = self.route_space[self.route_space['path'] == path].index.values[0]
+                        self.route_space.at[current_index, str(i)] = result[i]
+                # print(self.route_space)
 

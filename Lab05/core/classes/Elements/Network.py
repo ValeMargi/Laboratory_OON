@@ -149,7 +149,6 @@ class Network(object):
         path_in_route_space = self.route_space[self.route_space['path'] == path]
         for i in range(10):
             if path_in_route_space[str(i)].values[0] is None:
-
                 return i
         return None
 

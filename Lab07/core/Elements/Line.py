@@ -1,13 +1,15 @@
 from scipy.constants import c
 from Lab07.core.Info.Lightpath import Lightpath
 import numpy as np
+
+n_channel = 10
+
 class Line(object):
     def __init__(self, line_dict):
         self._label = line_dict['label']
         self._length = line_dict['length']
         self._successive = {}
-        self._state = []
-        self._state = np.ones(10, np.int8) #Free
+        self._state = np.ones(n_channel, np.int8) #Free
 
     @property
     def label(self):

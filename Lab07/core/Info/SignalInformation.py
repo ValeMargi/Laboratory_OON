@@ -1,4 +1,3 @@
-
 class SignalInformation(object):
     def __init__(self, power, path):
         self._signal_power = power

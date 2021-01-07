@@ -16,7 +16,6 @@ if __name__ == '__main__':
     pairs = []
     for label1 in node_labels:
         for label2 in node_labels:
-
             if label1 != label2:
                 pairs.append(label1 + label2)
             columns = ['path', 'latency', 'noise', 'snr']
@@ -48,7 +47,7 @@ if __name__ == '__main__':
             df['latency'] = latencies
             df['noise'] = noises
             df['snr'] = snrs
-    
+
 
     # Saving network dataframe without occupied channel into csv file
     # df.to_csv(r'../results/network_df.csv', index=False)
@@ -59,12 +58,18 @@ if __name__ == '__main__':
     # Creating dataframe from csv file
     #df_ = pd.read_csv("../results/network_df.csv")
     network.weighted_path = df
+
+    # Create route space
+    network.update_routing_space(None)  # best_path = None => route space empty
+    print("Route space initial", network.route_space)
+
+
     #print('\nBest_highest_snr with path A -> B: \n', network.find_best_snr('A', 'B'))
     #print('\nBest_highest_snr with path C -> D: \n', network.find_best_snr('C', 'D'))
     #print('\nBest_lowest_latency with path A -> B: \n', network.find_best_latency('A', 'B'))
     #print('\nBest_lowest_latency with path C -> D: \n', network.find_best_latency('C', 'D'))
     #print('\nBest_lowest_latency with path E -> D: \n', network.find_best_latency('E', 'D'))
-    
+
 
     connections = []
     nodes = 'ABCDEF'
@@ -76,7 +81,7 @@ if __name__ == '__main__':
                 break
         connections.append(Connection(input_rand, output_rand, 1e-3))
 
-    
+
     print('*************************************************************')
     '''print('Test path A->B\n\n\n')
         test_connection = []
@@ -105,7 +110,7 @@ if __name__ == '__main__':
         y = json.dumps(connections[i].__dict__)
         print(y)
 
-    
+
     '''
     # Stream with label='latency'
     network.stream(connections)

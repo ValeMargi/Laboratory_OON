@@ -6,6 +6,8 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
+n_channel = 10
+
 
 class Network(object):
     def __init__(self, json_path):
@@ -13,31 +15,11 @@ class Network(object):
         self._nodes = {}
         self._lines = {}
         self._weighted_path = pd.DataFrame()
-        self._route_space = pd.DataFrame()
         self._switching_matrix = {}
+        columns_name = ["path", "channels"]
+        self._route_space = pd.DataFrame(columns=columns_name)
 
-        paths = []
-        channel_0 = []
-        channel_1 = []
-        channel_2 = []
-        channel_3 = []
-        channel_4 = []
-        channel_5 = []
-        channel_6 = []
-        channel_7 = []
-        channel_8 = []
-        channel_9 = []
-        self._route_space['path'] = paths
-        self._route_space['0'] = channel_0
-        self._route_space['1'] = channel_1
-        self._route_space['2'] = channel_2
-        self._route_space['3'] = channel_3
-        self._route_space['4'] = channel_4
-        self._route_space['5'] = channel_5
-        self._route_space['6'] = channel_6
-        self._route_space['7'] = channel_7
-        self._route_space['8'] = channel_8
-        self._route_space['9'] = channel_9
+
 
         for node_label in node_json:
             # Create the node instance
@@ -134,18 +116,9 @@ class Network(object):
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
             node.switching_matrix = self.switching_matrix[node_label]
-            print("Node: ",node_label)
+            print("Node: ", node_label)
             print("Switching matrix in node: ", node.switching_matrix)
             for connected_node in node.connected_nodes:
-                '''
-                node.switching_matrix[connected_node] = {}
-                for connected_node_i in node.connected_nodes:
-                    if connected_node_i == connected_node:
-                        node.switching_matrix[connected_node][connected_node_i] = np.zeros(10, np.int8)
-                    else:
-                        node.switching_matrix[connected_node][connected_node_i] = np.ones(10, np.int8)
-                '''
-
                 line_label = node_label + connected_node
                 line = lines_dict[line_label]
                 line.successive[connected_node] = nodes_dict[connected_node]
@@ -169,29 +142,13 @@ class Network(object):
         return None, None, None
 
     def channel_free(self, path):
-        occupied = False
-        node1 = path[3]
-        first_line = self.lines[path[0] + node1]
+        path_in_route_space = self.route_space[self.route_space['path'] == path]
+        for i in range(n_channel):
+            if path_in_route_space['channels'].values[0][i] == 1:
+                return i
+        return None
 
-        for index in range(10):
-            node1 = path[3]
-            if first_line.state[index] == 1:  # Free
-                for node_i in range(6, len(path), 3):
-                    line = self.lines[node1 + path[node_i]]
-                    node1 = path[node_i]
-                    if line.state[index] == 0:  # occupied
-                        occupied = True
-                        break
-                if not occupied:
-                    break
-                occupied = False
-        else:
-            return None
 
-        if not occupied:
-            return index
-        else:
-            return None
 
     def find_best_latency(self, node_input, node_output):
         if node_input != node_output:
@@ -216,51 +173,56 @@ class Network(object):
                 path_label = ''
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
-                '''print("*****")
+                print("*****")
                 print("BEST PATH: ", best_path)
                 print("CHANNEL OCCUPIED: ", channel)
-                print("*****")'''
+                print("*****")
+
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
                 # DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
                 connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                 connection.latency = lightpath.latency
+
+                self.update_routing_space(best_path)  # 0= route space not empty
             else:
                 connection.snr = 0
                 connection.latency = -1  # None
 
-            if best_path is not None:
-                if not (self.route_space.path.astype('str') == best_path).any():
-                    row_route_space = [
-                        {'path': best_path, '0': 1, '1': 1, '2': 1, '3': 1, '4': 1, '5': 1, '6': 1,
-                         '7': 1, '8': 1, '9': 1}]
-                    new_df_route_space = pd.DataFrame.from_dict(row_route_space)
-                    if (self.route_space.index.empty is True):
-                        self.route_space = new_df_route_space.copy()
-                    else:
-                        self.route_space = self.route_space.append(new_df_route_space, ignore_index=True, sort=None)
-                    current_index = self.route_space.index.max()
 
-                else:
-                    current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
-                self.update_routing_space(best_path, channel, current_index)
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)
 
-    def update_routing_space(self, best_path, channel, current_index):
-        node1 = 3
-        first_line = self.lines[best_path[0] + best_path[node1]]
-        #print('path  ', best_path)
-        result = first_line.state
-        for node_i in range(6, len(best_path), 3):
-            line = self.lines[best_path[node1] + best_path[node_i]]
-            result = np.multiply(result, line.state)
-            result = np.multiply(self.nodes[best_path[node1]].switching_matrix[best_path[node1-3]][best_path[node_i]], result)
-            node1 = node_i
-            #print(result)
+    def update_routing_space(self, best_path):
+        if best_path is not None: # routing space not empty
+            #Aggiorno il primo arco del path in esame
+            current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
+            first_line = self.lines[best_path[0] + best_path[3]]
+            self.route_space.at[current_index, 'channels'] = first_line.state
 
-        for i in range(10):
-            self.route_space.at[current_index, str(i)] = result[i]
+        # Updating routing space for both initialization and after stream() method
+        for path in self.weighted_path['path']:
+            node1 = 3
+            first_line = self.lines[path[0] + path[node1]]
+            result = first_line.state
+
+            for node_i in range(6, len(path), 3):
+                line = self.lines[path[node1] + path[node_i]]
+                result = np.multiply(result, line.state)
+                result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]], result)
+
+                # Aggiorno le entry nel route space corrispondenti ai singoli archi presenti nel path
+                # solo se il path in esame è il path aggiornato nel metodo stream()
+                if best_path is not None and path == best_path:  # routing space not empty
+                    current_index = self.route_space[self.route_space['path'] == path[node1:node_i + 1]].index.values[0]
+                    self.route_space.at[current_index, 'channels'] = line.state
+
+                node1 = node_i  # for
+            if best_path is None:  # routing space empty
+                self.route_space = self.route_space.append({'path': path, 'channels': result}, ignore_index=True, sort=None)
+            else:
+                current_index = self.route_space[self.route_space['path'] == path].index.values[0]
+                self.route_space.at[current_index, 'channels'] = result
         #print(self.route_space)
 

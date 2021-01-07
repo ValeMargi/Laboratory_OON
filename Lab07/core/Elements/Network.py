@@ -206,7 +206,6 @@ class Network(object):
             node1 = 3
             first_line = self.lines[path[0] + path[node1]]
             result = first_line.state
-
             for node_i in range(6, len(path), 3):
                 line = self.lines[path[node1] + path[node_i]]
                 result = np.multiply(result, line.state)

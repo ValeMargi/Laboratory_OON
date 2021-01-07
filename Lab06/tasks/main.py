@@ -62,7 +62,7 @@ if __name__ == '__main__':
     network.weighted_path = df
 
     # Create route space
-    network.update_routing_space(None, route_space_empty=1) # 1= route space emoty
+    network.update_routing_space(None) # best_path = None => route space emoty
     print("Route space initial", network.route_space)
 
 
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         print(y)
 
     
-
+    '''
     # Stream with label='latency'
     network.stream(connections)
 
@@ -127,3 +127,4 @@ if __name__ == '__main__':
     plt.hist(latency_connections, label='Latency distribution')
     plt.title('Latency distribution')
     plt.show()
+    '''

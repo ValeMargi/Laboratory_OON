@@ -10,7 +10,7 @@ import random as rand
 
 if __name__ == '__main__':
 
-    network = Network('../resources/nodes_not_full.json') # '../resources/nodes_full.json'
+    network = Network('../resources/nodes_full.json') # '../resources/nodes_full.json'
     network.connect()
     node_labels = network.nodes.keys()
     pairs = []
@@ -81,7 +81,7 @@ if __name__ == '__main__':
                 break
         connections.append(Connection(input_rand, output_rand, 1e-3))
 
-
+    connections_not_full = connections[:]
     print('*************************************************************')
     '''print('Test path A->B\n\n\n')
         test_connection = []
@@ -94,22 +94,22 @@ if __name__ == '__main__':
     print('Stream with label=snr')
     network.stream(connections, 'snr')
 
-    print('Printing route_space\n\n')
-    print(network.route_space)
+    #print('Printing route_space\n\n')
+    #print(network.route_space)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections]
     plt.figure()
     plt.hist(snr_connections, label='Snr distribution')
-    plt.title('SNR distribution with not full switching matrix')
+    plt.title('SNR distribution with full switching matrix')
     plt.xlabel('SNR [dB]')
     plt.ylabel('Connections')
     plt.show()
 
-    for i in range(0, 100):
+    '''for i in range(0, 100):
         y = json.dumps(connections[i].__dict__)
         print(y)
-
+    '''
 
     '''
     # Stream with label='latency'
@@ -127,3 +127,23 @@ if __name__ == '__main__':
     plt.title('Latency distribution')
     plt.show()
     '''
+
+
+    network_not_full = Network('../resources/nodes_not_full.json')
+    network_not_full.connect()
+    network_not_full.weighted_path = df
+    network_not_full.update_routing_space(None) #Restore routing space
+
+    print('Stream with label=snr')
+    network_not_full.stream(connections_not_full, 'snr')
+
+    # plot the distribution of all the snrs
+    snr_connections = [c.snr for c in connections_not_full]
+    plt.figure()
+    plt.hist(snr_connections, label='Snr distribution')
+    plt.title('SNR distribution with not full switching matrix')
+    plt.xlabel('SNR [dB]')
+    plt.ylabel('Connections')
+    plt.show()
+
+

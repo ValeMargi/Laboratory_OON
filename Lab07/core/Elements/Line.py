@@ -59,5 +59,8 @@ class Line(object):
         signal_information.add_noise(noise)
 
         node = self.successive[signal_information.path[0]]
-        signal_information = node.propagate(signal_information)
+        if (type(signal_information) is Lightpath):
+            signal_information = node.propagate(signal_information, self.label[0])
+        else:
+            signal_information = node.propagate(signal_information, None)
         return signal_information

@@ -1,3 +1,4 @@
+from Lab07.core.Info.Lightpath import Lightpath
 
 class Node(object):
     def __init__(self, node_dict):
@@ -35,10 +36,20 @@ class Node(object):
     def switching_matrix(self, switching_matrix):
         self._switching_matrix = switching_matrix
 
-    def propagate(self, lighpath):
+    def propagate(self, lighpath, previous_node):
         path = lighpath.path
         if len(path) > 1:
             line_label = path[:2]
+            #ABD B
+            if type(lighpath) is Lightpath:
+                if previous_node is not None:
+                 channels = self.switching_matrix[previous_node][line_label[1]]
+                 channels[lighpath.channel] = 0
+                 if lighpath.channel != 9:
+                    channels[lighpath.channel+1] = 0
+                 if lighpath.channel != 0:
+                    channels[lighpath.channel-1] = 0
+
             line = self.successive[line_label]
             lighpath.next()
             lighpath = line.propagate(lighpath)

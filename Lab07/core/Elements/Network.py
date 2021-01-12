@@ -126,7 +126,7 @@ class Network(object):
 
     def propagate(self, lightpath):
         start_node = self.nodes[lightpath.path[0]]
-        propagated_signal_information = start_node.propagate(lightpath)
+        propagated_signal_information = start_node.propagate(lightpath, None )
         return propagated_signal_information
 
     def find_best_snr(self, node_input, node_output):
@@ -173,10 +173,10 @@ class Network(object):
                 path_label = ''
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
-                print("*****")
+                '''print("*****")
                 print("BEST PATH: ", best_path)
                 print("CHANNEL OCCUPIED: ", channel)
-                print("*****")
+                print("*****")'''
 
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)

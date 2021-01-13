@@ -1,4 +1,4 @@
-from Lab07.core.Info.SignalInformation import SignalInformation
+from Lab08.core.Info.SignalInformation import SignalInformation
 
 class Lightpath(SignalInformation):
     def __init__(self, power, path, channel):

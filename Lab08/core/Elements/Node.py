@@ -8,6 +8,7 @@ class Node(object):
         self._connected_nodes = node_dict['connected_nodes']
         self._successive = {}
         self._switching_matrix = None
+        self._transceiver = ''
 
     @property
     def label(self):
@@ -36,6 +37,15 @@ class Node(object):
     @switching_matrix.setter
     def switching_matrix(self, switching_matrix):
         self._switching_matrix = switching_matrix
+
+    @property
+    def transceiver(self):
+        return self._transceiver
+
+    @successive.setter
+    def transceiver(self, transceiver):
+        self._transceiver= transceiver
+
 
     def propagate(self, lighpath, previous_node):
         path = lighpath.path

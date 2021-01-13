@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from scipy.special import erfcinv as erfcinv
 
 n_channel = 10
-ber_t = 2.5
+ber_t = 1e-3
 Rs = 32e9
 Bn = 12.5e9
 
@@ -248,7 +248,7 @@ class Network(object):
 
 
     def calculate_bit_rate(self, path, strategy):
-        gsnr = self.weighted_path[self.weighted_path['path'] == path]['snr']
+        gsnr = self.weighted_path[self.weighted_path['path'] == path]['snr'].values[0]
         if strategy=='fixed-rate':
             if gsnr >= 2*((erfcinv(2*ber_t))**2)*Rs/Bn:
                 return  100e9

@@ -42,10 +42,9 @@ class Node(object):
     def transceiver(self):
         return self._transceiver
 
-    @successive.setter
+    @transceiver.setter
     def transceiver(self, transceiver):
         self._transceiver= transceiver
-
 
     def propagate(self, lighpath, previous_node):
         path = lighpath.path

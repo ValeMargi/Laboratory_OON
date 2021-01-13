@@ -5,9 +5,12 @@ from Lab08.core.Info.Lightpath import Lightpath
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.special import erfcinv as erfcinv
 
 n_channel = 10
-
+ber_t = 2.5
+Rs = 32e9
+Bn = 12.5e9
 
 class Network(object):
     def __init__(self, json_path):
@@ -175,6 +178,8 @@ class Network(object):
                 connection.latency = lightpath.latency
                 print("best path: ", best_path)
                 self.update_routing_space(best_path)  # 0= route space not empty
+
+
             else:
                 connection.snr = 0
                 connection.latency = -1  # None
@@ -230,3 +235,26 @@ class Network(object):
             line.state = np.ones(n_channel, np.int8)  # channel free
 
         self.update_routing_space(None)
+
+
+    def calculate_bit_rate(self, path, strategy):
+        gsnr = self.weighted_path[self.weighted_path['path'] == path]['snr']
+        if strategy=='fixed-rate':
+            if gsnr >= 2*((erfcinv(2*ber_t))**2)*Rs/Bn:
+                return  100e9
+            else:
+                return  0
+        elif strategy == 'flex-rate':
+            if gsnr < 2*((erfcinv(2*ber_t))**2)*Rs/Bn:
+                return 0
+            elif gsnr < 14/3*((erfcinv(3/2*ber_t))**2)*Rs/Bn:
+                return 100e9
+            elif gsnr <  10 *((erfcinv(8/3*ber_t))**2)*Rs/Bn:
+                return 200e9
+            else:
+                return 400e9
+        elif strategy == 'shannon':
+            return 2*Rs*np.log2(1+(gsnr*Bn/Rs))
+
+
+

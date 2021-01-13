@@ -173,7 +173,7 @@ class Network(object):
                 self.propagate(lightpath)
                 connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                 connection.latency = lightpath.latency
-
+                print("best path: ", best_path)
                 self.update_routing_space(best_path)  # 0= route space not empty
             else:
                 connection.snr = 0

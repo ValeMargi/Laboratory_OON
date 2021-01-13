@@ -4,7 +4,6 @@ from Lab07.core.Elements.Connection import Connection
 
 import pandas as pd
 import json
-import csv as csv
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rand
@@ -60,6 +59,7 @@ if __name__ == '__main__':
 
     # Creating 100 connections with signal_power equal to 1 and with input/output nodes randomly chosen
     connections_full = []
+    '''
     nodes = 'ABCDEF'
     for i in range(0, 100):
         input_rand = rand.choice(nodes)
@@ -68,6 +68,107 @@ if __name__ == '__main__':
             if input_rand != output_rand:
                 break
         connections_full.append(Connection(input_rand, output_rand, 1e-3))
+    '''
+    connections_full.append(Connection('F', 'A', 1e-3))
+    connections_full.append(Connection('D', 'A', 1e-3))
+    connections_full.append(Connection('A', 'B', 1e-3))
+    connections_full.append(Connection('F', 'E', 1e-3))
+    connections_full.append(Connection('A', 'D', 1e-3))
+    connections_full.append(Connection('B', 'D', 1e-3))
+    connections_full.append(Connection('A', 'D', 1e-3))
+    connections_full.append(Connection('D', 'C', 1e-3))
+    connections_full.append(Connection('D', 'C', 1e-3))
+    connections_full.append(Connection('A', 'E', 1e-3))
+    connections_full.append(Connection('A', 'C', 1e-3))
+    connections_full.append(Connection('D', 'F', 1e-3))
+    connections_full.append(Connection('A', 'D', 1e-3))
+    connections_full.append(Connection('F', 'D', 1e-3))
+    connections_full.append(Connection('F', 'A', 1e-3))
+    connections_full.append(Connection('D', 'F', 1e-3))
+    connections_full.append(Connection('C', 'F', 1e-3))
+    connections_full.append(Connection('D', 'B', 1e-3))
+    connections_full.append(Connection('C', 'D', 1e-3))
+    connections_full.append(Connection('D', 'E', 1e-3))
+    connections_full.append(Connection('E', 'A', 1e-3))
+    connections_full.append(Connection('A', 'D', 1e-3))
+    connections_full.append(Connection('E', 'B', 1e-3))
+    connections_full.append(Connection('F', 'E', 1e-3))
+    connections_full.append(Connection('B', 'F', 1e-3))
+    connections_full.append(Connection('E', 'A', 1e-3))
+    connections_full.append(Connection('A', 'E', 1e-3))
+    connections_full.append(Connection('A', 'E', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('C', 'A', 1e-3))
+    connections_full.append(Connection('B', 'E', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('A', 'B', 1e-3))
+    connections_full.append(Connection('D', 'A', 1e-3))
+    connections_full.append(Connection('A', 'F', 1e-3))
+    connections_full.append(Connection('E', 'B', 1e-3))
+    connections_full.append(Connection('C', 'A', 1e-3))
+    connections_full.append(Connection('C', 'F', 1e-3))
+    connections_full.append(Connection('D', 'B', 1e-3))
+    connections_full.append(Connection('E', 'F', 1e-3))
+    connections_full.append(Connection('A', 'D', 1e-3))
+    connections_full.append(Connection('D', 'E', 1e-3))
+    connections_full.append(Connection('A', 'C', 1e-3))
+    connections_full.append(Connection('E', 'B', 1e-3))
+    connections_full.append(Connection('A', 'B', 1e-3))
+    connections_full.append(Connection('E', 'D', 1e-3))
+    connections_full.append(Connection('F', 'D', 1e-3))
+    connections_full.append(Connection('A', 'F', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('C', 'B', 1e-3))
+    connections_full.append(Connection('F', 'E', 1e-3))
+    connections_full.append(Connection('D', 'E', 1e-3))
+    connections_full.append(Connection('B', 'A', 1e-3))
+    connections_full.append(Connection('F', 'E', 1e-3))
+    connections_full.append(Connection('D', 'A', 1e-3))
+    connections_full.append(Connection('F', 'C', 1e-3))
+    connections_full.append(Connection('D', 'B', 1e-3))
+    connections_full.append(Connection('C', 'E', 1e-3))
+    connections_full.append(Connection('C', 'B', 1e-3))
+    connections_full.append(Connection('F', 'C', 1e-3))
+    connections_full.append(Connection('C', 'A', 1e-3))
+    connections_full.append(Connection('D', 'C', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('A', 'C', 1e-3))
+    connections_full.append(Connection('B', 'E', 1e-3))
+    connections_full.append(Connection('E', 'A', 1e-3))
+    connections_full.append(Connection('F', 'D', 1e-3))
+    connections_full.append(Connection('C', 'A', 1e-3))
+    connections_full.append(Connection('D', 'B', 1e-3))
+    connections_full.append(Connection('A', 'E', 1e-3))
+    connections_full.append(Connection('E', 'B', 1e-3))
+    connections_full.append(Connection('C', 'D', 1e-3))
+    connections_full.append(Connection('D', 'E', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('D', 'C', 1e-3))
+    connections_full.append(Connection('D', 'C', 1e-3))
+    connections_full.append(Connection('D', 'C', 1e-3))
+    connections_full.append(Connection('E', 'F', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('A', 'B', 1e-3))
+    connections_full.append(Connection('A', 'E', 1e-3))
+    connections_full.append(Connection('F', 'D', 1e-3))
+    connections_full.append(Connection('C', 'A', 1e-3))
+    connections_full.append(Connection('E', 'B', 1e-3))
+    connections_full.append(Connection('C', 'A', 1e-3))
+    connections_full.append(Connection('F', 'C', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('B', 'A', 1e-3))
+    connections_full.append(Connection('D', 'B', 1e-3))
+    connections_full.append(Connection('A', 'F', 1e-3))
+    connections_full.append(Connection('E', 'C', 1e-3))
+    connections_full.append(Connection('E', 'B', 1e-3))
+    connections_full.append(Connection('D', 'C', 1e-3))
+    connections_full.append(Connection('A', 'F', 1e-3))
+    connections_full.append(Connection('B', 'D', 1e-3))
+    connections_full.append(Connection('D', 'C', 1e-3))
+    connections_full.append(Connection('A', 'E', 1e-3))
+    connections_full.append(Connection('B', 'F', 1e-3))
+
     # Saving 100 connections in a variable in order to create
     # a network with not full switching matrices considering the same connections
     connections_not_full = connections_full[:]
@@ -86,6 +187,7 @@ if __name__ == '__main__':
     plt.title('SNR distribution with full switching matrices')
     plt.xlabel('SNR [dB]')
     plt.ylabel('Connections')
+    plt.xticks([1, 10, 20, 30, 40,50])
     plt.show()
 
     ''' Printing the connections
@@ -127,4 +229,6 @@ if __name__ == '__main__':
     plt.title('SNR distribution with not full switching matrices')
     plt.xlabel('SNR [dB]')
     plt.ylabel('Connections')
+    plt.xticks([1, 10, 20, 30, 40,50])
     plt.show()
+

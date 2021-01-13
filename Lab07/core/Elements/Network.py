@@ -19,8 +19,6 @@ class Network(object):
         columns_name = ["path", "channels"]
         self._route_space = pd.DataFrame(columns=columns_name)
 
-
-
         for node_label in node_json:
             # Create the node instance
             node_dict = node_json[node_label]
@@ -116,8 +114,8 @@ class Network(object):
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
             node.switching_matrix = self.switching_matrix[node_label]
-            print("Node: ", node_label)
-            print("Switching matrix in node: ", node.switching_matrix)
+            # print("Node: ", node_label)
+            # print("Switching matrix in node: ", node.switching_matrix)
             for connected_node in node.connected_nodes:
                 line_label = node_label + connected_node
                 line = lines_dict[line_label]
@@ -126,7 +124,7 @@ class Network(object):
 
     def propagate(self, lightpath):
         start_node = self.nodes[lightpath.path[0]]
-        propagated_signal_information = start_node.propagate(lightpath, None )
+        propagated_signal_information = start_node.propagate(lightpath, None)
         return propagated_signal_information
 
     def find_best_snr(self, node_input, node_output):
@@ -147,8 +145,6 @@ class Network(object):
             if path_in_route_space['channels'].values[0][i] == 1:
                 return i
         return None
-
-
 
     def find_best_latency(self, node_input, node_output):
         if node_input != node_output:
@@ -173,14 +169,8 @@ class Network(object):
                 path_label = ''
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
-                '''print("*****")
-                print("BEST PATH: ", best_path)
-                print("CHANNEL OCCUPIED: ", channel)
-                print("*****")'''
-
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
-                # DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
                 connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                 connection.latency = lightpath.latency
 
@@ -188,15 +178,15 @@ class Network(object):
             else:
                 connection.snr = 0
                 connection.latency = -1  # None
-
-
+        # Restore network
+        self.restore_network()
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)
 
     def update_routing_space(self, best_path):
-        if best_path is not None: # routing space not empty
-            #Aggiorno il primo arco del path in esame
+        if best_path is not None:  # routing space not empty
+            # Aggiorno il primo arco del path in esame
             current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
             first_line = self.lines[best_path[0] + best_path[3]]
             self.route_space.at[current_index, 'channels'] = first_line.state
@@ -219,9 +209,24 @@ class Network(object):
 
                 node1 = node_i  # for
             if best_path is None:  # routing space empty
-                self.route_space = self.route_space.append({'path': path, 'channels': result}, ignore_index=True, sort=None)
+                self.route_space = self.route_space.append({'path': path, 'channels': result}, ignore_index=True,
+                                                           sort=None)
             else:
                 current_index = self.route_space[self.route_space['path'] == path].index.values[0]
                 self.route_space.at[current_index, 'channels'] = result
-        #print(self.route_space)
+        # print(self.route_space)
 
+    def restore_network(self):
+        self.route_space = self.route_space[0:0]
+        nodes_dict = self.nodes
+        lines_dict = self.lines
+        for node_label in nodes_dict:
+            node = nodes_dict[node_label]
+            node.switching_matrix = self.switching_matrix[node_label]
+
+        for line_label in lines_dict:
+            line = lines_dict[line_label]
+            #print(line.state)
+            line.state = np.ones(n_channel, np.int8)  # channel free
+
+        self.update_routing_space(None)

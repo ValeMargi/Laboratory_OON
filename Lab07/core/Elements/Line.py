@@ -45,7 +45,7 @@ class Line(object):
 
     def propagate(self, signal_information):
 
-        if( type(signal_information) is Lightpath):
+        if type(signal_information) is Lightpath:
             if signal_information.channel is not None:
                 self.state[signal_information.channel] = 0 #'occupied'
 
@@ -59,7 +59,7 @@ class Line(object):
         signal_information.add_noise(noise)
 
         node = self.successive[signal_information.path[0]]
-        if (type(signal_information) is Lightpath):
+        if type(signal_information) is Lightpath:
             signal_information = node.propagate(signal_information, self.label[0])
         else:
             signal_information = node.propagate(signal_information, None)

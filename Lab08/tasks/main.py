@@ -188,6 +188,7 @@ if __name__ == '__main__':
     plt.title('SNR distribution with Fixed rate')
     plt.xlabel('SNR [dB]')
     plt.ylabel('Connections')
+    #plt.xticks([1, 10, 20, 30, 40, 50])
     plt.show()
 
     bit_rate_connections = [c.bit_rate for c in connections_fixed_rate if c.bit_rate != 0]
@@ -196,7 +197,10 @@ if __name__ == '__main__':
     plt.title('Bit rate of accepted connections - Fixed rate')
     plt.xlabel('bit rate [bps]')
     plt.ylabel('Connections')
+    #plt.xticks([0, 100e9, 200e9])
+
     plt.show()
+
     print("Average bit rate for fixed rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
 
@@ -218,6 +222,7 @@ if __name__ == '__main__':
     plt.title('SNR distribution with Shannon rate')
     plt.xlabel('SNR [dB]')
     plt.ylabel('Connections')
+    #plt.xticks([1, 10, 20, 30, 40, 50])
     plt.show()
 
     bit_rate_connections = [c.bit_rate for c in connections_shannon if c.bit_rate!=0]
@@ -226,11 +231,14 @@ if __name__ == '__main__':
     plt.title('Bit rate of accepted connections - Shannon rate')
     plt.xlabel('bit rate [bps]')
     plt.ylabel('Connections')
+    #plt.xticks([0, 100e9, 200e9, 400e9])
+
     plt.show()
+
     print("Average bit rate for shannon rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
 
-    # flex_rate
+
     network_flex_rate = Network('../resources/nodes_full_flex_rate.json')
     network_flex_rate.connect()
     network_flex_rate.weighted_path = df
@@ -247,12 +255,16 @@ if __name__ == '__main__':
     plt.xlabel('SNR [dB]')
     plt.ylabel('Connections')
     plt.show()
+
+
     bit_rate_connections = [c.bit_rate for c in connections_flex_rate if c.bit_rate!=0]
     plt.figure()
     plt.hist(bit_rate_connections, label='Bit rate histogram')
     plt.title('Bit rate of accepted connections - Flex rate')
     plt.xlabel('bit rate [bps]')
     plt.ylabel('Connections')
+    #plt.xticks([0, 100e9, 200e9, 400e9  ])
     plt.show()
+
     print("Average bit rate for flex rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))

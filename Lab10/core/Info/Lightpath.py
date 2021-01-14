@@ -1,0 +1,30 @@
+from Lab010.core.Info.SignalInformation import SignalInformation
+df = 50 #GHz
+Rs = 35 #GHz
+
+
+class Lightpath(SignalInformation):
+    def __init__(self, power, path, channel):
+        self._signal_power = power
+        self._path = path
+        self._noise_power = 0
+        self._latency = 0
+        self._channel = channel
+        self._symbol_rate = Rs
+        self._df = df
+
+    @property
+    def channel(self):
+        return self._channel
+
+    @channel.setter
+    def channel(self, channel):
+        self._channel = channel
+
+    @property
+    def symbol_rate(self):
+        return self._symbol_rate
+
+    @property
+    def df(self):
+        return self._df

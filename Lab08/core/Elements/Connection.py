@@ -9,7 +9,7 @@ class Connection(object):
         self._bit_rate = 0
 
     def __repr__(self):
-        return "<Connection input:%s  output:%s signal_power:%f latency:%r snr:%f>" % (
+        return "<Connection input:%s  output:%s signal_power:%f latency:%r snr:%f bit_rate:%d>" % (
         self.input, self.output, self.signal_power, self.latency, self.snr, self.bit_rate)
 
     @property

@@ -36,9 +36,10 @@ if __name__ == '__main__':
                     signal_information = network_fixed_rate.propagate(signal_information)
                     latencies.append(signal_information.latency)
                     noises.append(signal_information.noise_power)
-                    snrs.append(
-                        10 * np.log10(
-                            signal_information.signal_power / signal_information.noise_power))
+                    snrs.append(10 * np.log10(1/signal_information.isnr))
+                    #snrs.append(10 * np.log10(signal_information.signal_power / signal_information.noise_power))
+
+
             df['path'] = paths
             df['latency'] = latencies
             df['noise'] = noises
@@ -196,6 +197,7 @@ if __name__ == '__main__':
     plt.title('Bit rate of accepted connections - Fixed rate')
     plt.xlabel('bit rate [bps]')
     plt.ylabel('Connections')
+    #plt.xticks([0e11, 0.02e11, 0.04e11, 0.06e11, 0.08e11, 0.1e11])
     plt.show()
     print("Average bit rate for fixed rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))

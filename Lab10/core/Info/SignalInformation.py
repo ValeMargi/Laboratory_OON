@@ -4,10 +4,15 @@ class SignalInformation(object):
         self._path = path
         self._noise_power = 0
         self._latency = 0
+        self._isnr = 0.0
 
     @property
     def signal_power(self):
         return self._signal_power
+
+    @signal_power.setter
+    def signal_power(self, power):
+        self._signal_power = power
 
     @property
     def path(self):
@@ -32,6 +37,14 @@ class SignalInformation(object):
     @latency.setter
     def latency(self, latency):
         self._latency = latency
+
+    @property
+    def isnr(self):
+        return self._isnr
+
+    @isnr.setter
+    def isnr(self, isnr):
+        self._isnr = isnr
 
     def add_noise(self, noise):
         self.noise_power = self._noise_power + noise

@@ -9,6 +9,7 @@ class Lightpath(SignalInformation):
         self._path = path
         self._noise_power = 0
         self._latency = 0
+        self._isnr = 0.0
         self._channel = channel
         self._symbol_rate = Rs
         self._df = df

@@ -1,7 +1,7 @@
 from scipy.constants import c, h
 from Lab10.core.Info.Lightpath import Lightpath
 import numpy as np
-from math import pow
+from math import ceil
 
 n_channel = 10
 Bn = 12.5e9
@@ -15,20 +15,21 @@ df = 50e9  # GHz
 Rs = 32e9  # GHz
 Pch_base = 1e-3
 
+
 class Line(object):
     def __init__(self, line_dict):
         self._label = line_dict['label']
         self._length = line_dict['length']
         self._successive = {}
         self._state = np.ones(n_channel, np.int8)  # Free
-        self._n_amplifiers = self.length / 80e3
+        self._n_amplifiers = 0
         self._gain = g
         self._noise_figure = nf
         self._alfa = (alpha_dB_km / 1e3) / (20 * np.log10(np.exp(1)))
         self._beta2 = beta2
         self._gamma = gamma
         self._Leff = 1 / (2 * self.alfa)
-        self.n_span = self.n_amplifiers - 1
+        self._n_span = 0
 
     @property
     def label(self):
@@ -57,6 +58,11 @@ class Line(object):
     @property
     def n_amplifiers(self):
         return self._n_amplifiers
+
+    @n_amplifiers.setter
+    def n_amplifiers(self, n_amplifiers):
+        self._n_amplifiers = n_amplifiers
+        self._n_span = n_amplifiers - 1
 
     @property
     def gain(self):
@@ -109,6 +115,9 @@ class Line(object):
         noise = self.noise_generation(signal_power)
         signal_information.add_noise(noise)
 
+        # Update gsnr
+        signal_information.isnr += self.isnr_computation(signal_information)
+
         node = self.successive[signal_information.path[0]]
         if type(signal_information) is Lightpath:
             signal_information = node.propagate(signal_information, self.label[0])
@@ -117,17 +126,27 @@ class Line(object):
         return signal_information
 
     def ase_generation(self):
+        #print("LEN: ", self.length)
+        self.n_amplifiers = (ceil(self.length / 80e3) -1)+2
         return self.n_amplifiers * (h * f * Bn * (10 ** (self.noise_figure / 10)) * ((10 ** (self.gain / 10)) - 1))
 
-    def nli_generation(self, ):
-        print("log", ((np.pi ** 2) * self.beta2 * (Rs ** 2) * (n_channel ** (2 * Rs / df))))
+    def nli_generation(self ):
+        # print("log", ((np.pi ** 2) * self.beta2 * (Rs ** 2) * (n_channel ** (2 * Rs / df))))
         nli = Pch_base ** 3 * self.eta_nli_generation() * self.n_span * Bn
+        print("N_SPAN: ", self.n_span, "Bn: ", Bn, "Pch_base: ", Pch_base)
+        print("NLI: ", nli, "ETA: ", self.eta_nli_generation(), "ASE: ", self.ase_generation())
         return nli
 
     def optimized_launch_power(self):
-        return (self.ase_generation() / (2 * self.eta_nli_generation() * self.n_span * Bn)) ** 3
+        return (self.ase_generation() / (2 * self.eta_nli_generation() * self.n_span * Bn)) ** (1/3)
 
     def eta_nli_generation(self):
         return 16 / (27 * np.pi) * np.log(
             (np.pi ** 2) / 2 * self.beta2 * (Rs ** 2) / self.alfa * (n_channel ** (2 * Rs / df))) \
                * (self.alfa / self.beta2 * ((self.gamma ** 2) * (self.Leff ** 2) / (Rs ** 3)))
+
+    def gsnr_computation(self, signal):
+        return signal.signal_power / signal.noise_power
+
+    def isnr_computation(self, signal):
+        return 1 / self.gsnr_computation(signal)

@@ -178,15 +178,15 @@ class Network(object):
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
 
-                bit_rate = self.calculate_bit_rate(best_path, self.nodes[path_label[0]].transceiver)
+                lightpath = Lightpath(connection.signal_power, path_label, channel)
+                bit_rate = self.calculate_bit_rate(lightpath, self.nodes[path_label[0]].transceiver)
                 if bit_rate == 0:
                     connection.snr = 0
                     connection.latency = -1  # None
                     connection.bit_rate = 0
                 else:
-                    lightpath = Lightpath(connection.signal_power, path_label, channel)
+                    print("PATH: ", best_path)
                     self.propagate(lightpath)
-
                     connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                     connection.latency = lightpath.latency
                     connection.bit_rate = bit_rate
@@ -248,22 +248,25 @@ class Network(object):
 
         self.update_routing_space(None)
 
-    def calculate_bit_rate(self, path, strategy):
-        gsnr_dB = self.weighted_path[self.weighted_path['path'] == path]['snr'].values[0] #dB
+    def calculate_bit_rate(self, lightpath, strategy):
+        path_label = ''
+        for node in lightpath.path:
+            path_label += node + '->'
+        gsnr_dB = self.weighted_path[self.weighted_path['path'] == path_label[:-2]]['snr'].values[0] #dB
         gsnr = 10**(gsnr_dB/10)
         if strategy == 'fixed_rate':
-            if gsnr >= 2 * ((erfcinv(2 * ber_t)) ** 2) * Rs / Bn:
+            if gsnr >= 2 * ((erfcinv(2 * ber_t)) ** 2) * lightpath.symbol_rate / Bn:
                 return 100e9
             else:
                 return 0
         elif strategy == 'flex_rate':
-            if gsnr < 2 * ((erfcinv(2 * ber_t)) ** 2) * Rs / Bn:
+            if gsnr < 2 * ((erfcinv(2 * ber_t)) ** 2) * lightpath.symbol_rate / Bn:
                 return 0
-            elif gsnr < 14 / 3 * ((erfcinv(3 / 2 * ber_t)) ** 2) * Rs / Bn:
+            elif gsnr < 14 / 3 * ((erfcinv(3 / 2 * ber_t)) ** 2) * lightpath.symbol_rate / Bn:
                 return 100e9
-            elif gsnr < 10 * ((erfcinv(8 / 3 * ber_t)) ** 2) * Rs / Bn:
+            elif gsnr < 10 * ((erfcinv(8 / 3 * ber_t)) ** 2) * lightpath.symbol_rate / Bn:
                 return 200e9
             else:
                 return 400e9
         elif strategy == 'shannon':
-            return 2 * Rs * np.log2(1 + (gsnr * Bn / Rs))
+            return 2 * lightpath.symbol_rate * np.log2(1 + (gsnr * Bn / lightpath.symbol_rate))

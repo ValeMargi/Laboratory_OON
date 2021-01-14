@@ -1,7 +1,7 @@
 import pandas as pd
-from Lab010.core.Elements.Node import Node
-from Lab010.core.Elements.Line import Line
-from Lab010.core.Info.Lightpath import Lightpath
+from Lab10.core.Elements.Node import Node
+from Lab10.core.Elements.Line import Line
+from Lab10.core.Info.Lightpath import Lightpath
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -186,6 +186,7 @@ class Network(object):
                 else:
                     lightpath = Lightpath(connection.signal_power, path_label, channel)
                     self.propagate(lightpath)
+
                     connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                     connection.latency = lightpath.latency
                     connection.bit_rate = bit_rate

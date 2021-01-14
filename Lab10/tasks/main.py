@@ -1,6 +1,6 @@
-from Lab010.core.Info.SignalInformation import SignalInformation
-from Lab010.core.Elements.Network import Network
-from Lab010.core.Elements.Connection import Connection
+from Lab10.core.Info.SignalInformation import SignalInformation
+from Lab10.core.Elements.Network import Network
+from Lab10.core.Elements.Connection import Connection
 
 import pandas as pd
 import json
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     plt.show()
     print("Average bit rate for fixed rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
-
+    '''
     # Shannon
     network_shannon = Network('../resources/nodes_full_shannon.json')
     network_shannon.connect()
@@ -254,3 +254,4 @@ if __name__ == '__main__':
     print("Average bit rate for flex rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
 
+    '''

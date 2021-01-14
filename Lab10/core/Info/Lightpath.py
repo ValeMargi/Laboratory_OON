@@ -1,6 +1,6 @@
-from Lab010.core.Info.SignalInformation import SignalInformation
-df = 50 #GHz
-Rs = 35 #GHz
+from Lab10.core.Info.SignalInformation import SignalInformation
+df = 50e9 #GHz
+Rs = 32e9 #GHz
 
 
 class Lightpath(SignalInformation):

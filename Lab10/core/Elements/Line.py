@@ -1,15 +1,18 @@
 from scipy.constants import c, h
-from Lab010.core.Info.Lightpath import Lightpath
+from Lab10.core.Info.Lightpath import Lightpath
 import numpy as np
-from Lab010.core.Elements.Network import Bn
+from math import pow
 
 n_channel = 10
+Bn = 12.5e9
 g = 16  # dB
 nf = 3  # dB
 f = 193.414e12  # C-band center
-alfa_dB = 0.2  # dB/Km
+alpha_dB_km = 0.2  # dB/Km
 beta2 = 2.13e-26  # (m Hz^2)^-1
-gamma = 1.27e-3 # inv(WM)
+gamma = 1.27e-3  # inv(WM)
+df = 50e9  # GHz
+Rs = 32e9  # GHz
 
 
 class Line(object):
@@ -21,9 +24,11 @@ class Line(object):
         self._n_amplifiers = self.length / 80e3
         self._gain = g
         self._noise_figure = nf
-        self._alfa = (alfa_dB / 1e3) / (20 * np.log10(np.exp(1)))
+        self._alfa = (alpha_dB_km / 1e3) / (20 * np.log10(np.exp(1)))
         self._beta2 = beta2
         self._gamma = gamma
+        self._Leff = 1 / (2 * self.alfa)
+        self.n_span = self.n_amplifiers - 1
 
     @property
     def label(self):
@@ -73,12 +78,20 @@ class Line(object):
     def gamma(self):
         return self._gamma
 
+    @property
+    def Leff(self):
+        return self._Leff
+
+    @property
+    def n_span(self):
+        return self._n_span
+
     def latency_generation(self):
         latency = self.length / (c * 2 / 3)
         return latency
 
     def noise_generation(self, signal_power):
-        noise = 1e-9 * signal_power * self.length
+        noise = self.ase_generation() + self.nli_generation()
         return noise
 
     def propagate(self, signal_information):
@@ -106,14 +119,15 @@ class Line(object):
     def ase_generation(self):
         return self.n_amplifiers * (h * f * Bn * (10 ** (self.noise_figure / 10)) * ((10 ** (self.gain / 10)) - 1))
 
-    def nli_generation(self, lightpath):
-        Leff = 1/(2*self.alfa)
-        Nspan =  self.n_amplifiers-1
-        eta_NLI = 16/(27*np.pi) * np.log(((np.pi**2) * self.beta2 * (lightpath.symbol_rate**2) *
-                                          (n_channel ** (2*lightpath.symbol_rate/lightpath.df)) )/(2*self.alfa ))\
-                  * (self.alfa * (self.gamma**2)* (Leff**2)/ (self.beta2 * (lightpath.symbol_rate**3)))
+    def nli_generation(self):
+        print("log", ((np.pi ** 2) * self.beta2 * (Rs ** 2) * (n_channel ** (2 * Rs / df))))
+        nli = (1e-3) ** 3 * self.eta_nli_generation() * self.n_span * Bn
+        return nli
 
-        NLI = lightpath.signal_power**3 + eta_NLI * Nspan * Bn
-        return NLI
+    def optimized_launch_power(self):
+        return (self.ase_generation() / (2 * self.eta_nli_generation() * self.n_span * Bn)) ** 3
 
-
+    def eta_nli_generation(self):
+        return 16 / (27 * np.pi) * np.log(
+            (np.pi ** 2) / 2 * self.beta2 * (Rs ** 2) / self.alfa * (n_channel ** (2 * Rs / df))) \
+               * (self.alfa / self.beta2 * ((self.gamma ** 2) * (self.Leff ** 2) / (Rs ** 3)))

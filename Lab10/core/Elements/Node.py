@@ -60,6 +60,7 @@ class Node(object):
                         channels[lighpath.channel - 1] = 0
 
             line = self.successive[line_label]
+            lighpath.signal_power = line.optimized_launch_power()
             lighpath.next()
             lighpath = line.propagate(lighpath)
         return lighpath

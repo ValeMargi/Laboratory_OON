@@ -13,7 +13,7 @@ beta2 = 2.13e-26  # (m Hz^2)^-1
 gamma = 1.27e-3  # inv(WM)
 df = 50e9  # GHz
 Rs = 32e9  # GHz
-
+Pch_base = 1e-3
 
 class Line(object):
     def __init__(self, line_dict):
@@ -119,9 +119,9 @@ class Line(object):
     def ase_generation(self):
         return self.n_amplifiers * (h * f * Bn * (10 ** (self.noise_figure / 10)) * ((10 ** (self.gain / 10)) - 1))
 
-    def nli_generation(self):
+    def nli_generation(self, ):
         print("log", ((np.pi ** 2) * self.beta2 * (Rs ** 2) * (n_channel ** (2 * Rs / df))))
-        nli = (1e-3) ** 3 * self.eta_nli_generation() * self.n_span * Bn
+        nli = Pch_base ** 3 * self.eta_nli_generation() * self.n_span * Bn
         return nli
 
     def optimized_launch_power(self):

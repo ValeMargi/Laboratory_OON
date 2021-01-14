@@ -253,3 +253,4 @@ if __name__ == '__main__':
     plt.show()
     print("Average bit rate for flex rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
+

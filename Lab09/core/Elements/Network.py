@@ -248,7 +248,8 @@ class Network(object):
         self.update_routing_space(None)
 
     def calculate_bit_rate(self, path, strategy):
-        gsnr = self.weighted_path[self.weighted_path['path'] == path]['snr'].values[0]
+        gsnr_dB = self.weighted_path[self.weighted_path['path'] == path]['snr'].values[0] #dB
+        gsnr = 10**(gsnr_dB/10)
         if strategy == 'fixed_rate':
             if gsnr >= 2 * ((erfcinv(2 * ber_t)) ** 2) * Rs / Bn:
                 return 100e9

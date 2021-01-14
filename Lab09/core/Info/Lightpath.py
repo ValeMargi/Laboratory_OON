@@ -1,5 +1,6 @@
 from Lab09.core.Info.SignalInformation import SignalInformation
-
+df = 50 #GHz
+Rs = 35 #GHz
 class Lightpath(SignalInformation):
     def __init__(self, power, path, channel):
         self._signal_power = power
@@ -7,6 +8,8 @@ class Lightpath(SignalInformation):
         self._noise_power = 0
         self._latency = 0
         self._channel = channel
+        self._symbol_rate = Rs
+        self._df = df
 
     @property
     def channel(self):
@@ -15,3 +18,11 @@ class Lightpath(SignalInformation):
     @channel.setter
     def channel(self, channel):
         self._channel = channel
+
+    @property
+    def symbol_rate(self):
+        return self._symbol_rate
+
+    @property
+    def df(self):
+        return self._df

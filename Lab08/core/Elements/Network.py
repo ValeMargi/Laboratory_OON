@@ -12,6 +12,7 @@ ber_t = 1e-3
 Rs = 32e9
 Bn = 12.5e9
 
+
 class Network(object):
     def __init__(self, json_path):
         node_json = json.load(open(json_path, 'r'))
@@ -27,8 +28,8 @@ class Network(object):
             node_dict = node_json[node_label]
             node_dict['label'] = node_label
             node = Node(node_dict)
-            if 'transceiver' in node_json.keys():
-                node.transceiver = node_json['transceiver']
+            if 'transceiver' in node_json[node_label].keys():
+                node.transceiver = node_json[node_label]['transceiver']
             else:
                 node.transceiver = 'fixed-rate'
             self._nodes[node_label] = node
@@ -188,7 +189,7 @@ class Network(object):
                     connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                     connection.latency = lightpath.latency
                     connection.bit_rate = bit_rate
-                    print("best path: ", best_path)
+                    #print("best path: ", best_path)
                     self.update_routing_space(best_path)  # 0= route space not empty
             else:
                 connection.snr = 0
@@ -241,30 +242,26 @@ class Network(object):
 
         for line_label in lines_dict:
             line = lines_dict[line_label]
-            #print(line.state)
+            # print(line.state)
             line.state = np.ones(n_channel, np.int8)  # channel free
 
         self.update_routing_space(None)
 
-
     def calculate_bit_rate(self, path, strategy):
         gsnr = self.weighted_path[self.weighted_path['path'] == path]['snr'].values[0]
-        if strategy=='fixed-rate':
-            if gsnr >= 2*((erfcinv(2*ber_t))**2)*Rs/Bn:
-                return  100e9
-            else:
-                return  0
-        elif strategy == 'flex-rate':
-            if gsnr < 2*((erfcinv(2*ber_t))**2)*Rs/Bn:
-                return 0
-            elif gsnr < 14/3*((erfcinv(3/2*ber_t))**2)*Rs/Bn:
+        if strategy == 'fixed_rate':
+            if gsnr >= 2 * ((erfcinv(2 * ber_t)) ** 2) * Rs / Bn:
                 return 100e9
-            elif gsnr <  10 *((erfcinv(8/3*ber_t))**2)*Rs/Bn:
+            else:
+                return 0
+        elif strategy == 'flex_rate':
+            if gsnr < 2 * ((erfcinv(2 * ber_t)) ** 2) * Rs / Bn:
+                return 0
+            elif gsnr < 14 / 3 * ((erfcinv(3 / 2 * ber_t)) ** 2) * Rs / Bn:
+                return 100e9
+            elif gsnr < 10 * ((erfcinv(8 / 3 * ber_t)) ** 2) * Rs / Bn:
                 return 200e9
             else:
                 return 400e9
         elif strategy == 'shannon':
-            return 2*Rs*np.log2(1+(gsnr*Bn/Rs))
-
-
-
+            return 2 * Rs * np.log2(1 + (gsnr * Bn / Rs))

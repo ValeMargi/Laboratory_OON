@@ -1,4 +1,7 @@
 import pandas as pd
+from scipy import rand
+from Lab10.core.Elements.Connection import Connection
+
 from Lab10.core.Elements.Node import Node
 from Lab10.core.Elements.Line import Line
 from Lab10.core.Info.Lightpath import Lightpath
@@ -7,6 +10,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import erfcinv as erfcinv
 import copy
+from math import inf
+import random as rand
+
 n_channel = 10
 ber_t = 1e-3
 Rs = 32e9
@@ -186,21 +192,21 @@ class Network(object):
                     connection.latency = -1  # None
                     connection.bit_rate = 0
                 else:
-                    #print("PATH: ", best_path)
+                    # print("PATH: ", best_path)
                     self.propagate(lightpath)
                     connection.snr = self.snr_dB(lightpath)
                     connection.latency = lightpath.latency
                     connection.bit_rate = bit_rate
-                    #print("best path: ", best_path)
+                    # print("best path: ", best_path)
                     self.update_routing_space(best_path)  # 0= route space not empty
             else:
                 connection.snr = 0
                 connection.latency = -1  # None
         # Restore network
-        self.restore_network()
+        # self.restore_network()
 
     def snr_dB(self, lightpath):
-        return (10 * np.log10(1/lightpath.isnr))
+        return (10 * np.log10(1 / lightpath.isnr))
 
     def update_routing_space(self, best_path):
         if best_path is not None:  # routing space not empty
@@ -253,9 +259,9 @@ class Network(object):
         path_label = ''
         for node in lightpath.path:
             path_label += node + '->'
-        gsnr_dB = self.weighted_path[self.weighted_path['path'] == path_label[:-2]]['snr'].values[0] #dB
-        gsnr = 10**(gsnr_dB/10)
-        print("GSNR linear: ", gsnr, " GSNR dB: " ,gsnr_dB)
+        gsnr_dB = self.weighted_path[self.weighted_path['path'] == path_label[:-2]]['snr'].values[0]  # dB
+        gsnr = 10 ** (gsnr_dB / 10)
+        print("GSNR linear: ", gsnr, " GSNR dB: ", gsnr_dB)
         if strategy == 'fixed_rate':
             if gsnr >= 2 * ((erfcinv(2 * ber_t)) ** 2) * lightpath.symbol_rate / Bn:
                 return 100e9
@@ -272,3 +278,27 @@ class Network(object):
                 return 400e9
         elif strategy == 'shannon':
             return 2 * lightpath.symbol_rate * np.log2(1 + (gsnr * Bn / lightpath.symbol_rate))
+
+    def connections_management_traffic_matrix(self, traffic_matrix, connections, signal_power):
+        nodes = list(self.nodes.keys())
+        while True:
+            input_rand = rand.choice(nodes)
+            output_rand = rand.choice(nodes)
+            if input_rand != output_rand and traffic_matrix[input_rand][output_rand] != 0 and \
+                    traffic_matrix[input_rand][output_rand] != inf:
+                break
+        connection = Connection(input_rand, output_rand, signal_power)
+        current_connections = [connection]
+        self.stream(current_connections, 'snr')
+        connections.append(connection)
+
+        if connection.snr != 0:
+            if connection.bit_rate >= traffic_matrix[input_rand][output_rand]:
+                traffic_matrix[input_rand][output_rand] = 0
+                return 1  # decrement
+            else:
+                traffic_matrix[input_rand][output_rand] -= connection.bit_rate
+                return 0
+        else:
+            traffic_matrix[input_rand][output_rand] = inf
+        return 1  # decrement

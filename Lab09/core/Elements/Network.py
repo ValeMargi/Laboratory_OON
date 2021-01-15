@@ -6,6 +6,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import erfcinv as erfcinv
+import copy
 
 n_channel = 10
 ber_t = 1e-3
@@ -121,7 +122,7 @@ class Network(object):
 
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
-            node.switching_matrix = self.switching_matrix[node_label]
+            node.switching_matrix = copy.deepcopy(self.switching_matrix[node_label])
             # print("Node: ", node_label)
             # print("Switching matrix in node: ", node.switching_matrix)
             for connected_node in node.connected_nodes:
@@ -178,13 +179,13 @@ class Network(object):
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
 
+                lightpath = Lightpath(connection.signal_power, path_label, channel)
                 bit_rate = self.calculate_bit_rate(best_path, self.nodes[path_label[0]].transceiver)
                 if bit_rate == 0:
                     connection.snr = 0
                     connection.latency = -1  # None
                     connection.bit_rate = 0
                 else:
-                    lightpath = Lightpath(connection.signal_power, path_label, channel)
                     self.propagate(lightpath)
                     connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                     connection.latency = lightpath.latency
@@ -238,7 +239,7 @@ class Network(object):
         lines_dict = self.lines
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
-            node.switching_matrix = self.switching_matrix[node_label]
+            node.switching_matrix = copy.deepcopy(self.switching_matrix[node_label])
 
         for line_label in lines_dict:
             line = lines_dict[line_label]

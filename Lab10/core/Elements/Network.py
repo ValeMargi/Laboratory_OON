@@ -186,7 +186,7 @@ class Network(object):
                     connection.latency = -1  # None
                     connection.bit_rate = 0
                 else:
-                    print("PATH: ", best_path)
+                    #print("PATH: ", best_path)
                     self.propagate(lightpath)
                     connection.snr = self.snr_dB(lightpath)
                     connection.latency = lightpath.latency

@@ -96,14 +96,14 @@ class Line(object):
         latency = self.length / (c * 2 / 3)
         return latency
 
-    def noise_generation(self, signal_power):
-        noise = self.ase_generation() + self.nli_generation()
+    def noise_generation(self, signal):
+        noise = self.ase_generation() + self.nli_generation(signal)
         return noise
 
     def propagate(self, signal_information):
 
         if type(signal_information) is Lightpath:
-            if signal_information.channel is not None:
+            if signal_information.channel is not None: # ==1
                 self.state[signal_information.channel] = 0  # 'occupied'
 
         # Update latency
@@ -112,7 +112,8 @@ class Line(object):
 
         # Update noise
         signal_power = signal_information.signal_power
-        noise = self.noise_generation(signal_power)
+        print("path before noise_gen ", signal_information.path)
+        noise = self.noise_generation(signal_information)
         signal_information.add_noise(noise)
 
         # Update gsnr
@@ -130,10 +131,11 @@ class Line(object):
         self.n_amplifiers = (ceil(self.length / 80e3) -1)+2
         return self.n_amplifiers * (h * f * Bn * (10 ** (self.noise_figure / 10)) * ((10 ** (self.gain / 10)) - 1))
 
-    def nli_generation(self ):
+    def nli_generation(self, signal ):
         # print("log", ((np.pi ** 2) * self.beta2 * (Rs ** 2) * (n_channel ** (2 * Rs / df))))
-        nli = Pch_base ** 3 * self.eta_nli_generation() * self.n_span * Bn
-        print("N_SPAN: ", self.n_span, "Bn: ", Bn, "Pch_base: ", Pch_base)
+        nli = signal.signal_power ** 3 * self.eta_nli_generation() * self.n_span * Bn
+        print("PATH signal: ", signal.path)
+        print("N_SPAN: ", self.n_span, "Bn: ", Bn, "Pch_base: ", signal.signal_power)
         print("NLI: ", nli, "ETA: ", self.eta_nli_generation(), "ASE: ", self.ase_generation())
         return nli
 
@@ -146,7 +148,7 @@ class Line(object):
                * (self.alfa / self.beta2 * ((self.gamma ** 2) * (self.Leff ** 2) / (Rs ** 3)))
 
     def gsnr_computation(self, signal):
-        return signal.signal_power / signal.noise_power
+        return signal.signal_power / self.noise_generation(signal)
 
     def isnr_computation(self, signal):
         return 1 / self.gsnr_computation(signal)

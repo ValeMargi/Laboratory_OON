@@ -32,14 +32,13 @@ if __name__ == '__main__':
                         path_string += node + '->'
                     paths.append(path_string[:-2])
 
+                    print("Path main: ", path)
                     signal_information = SignalInformation(1e-3, path)
                     signal_information = network_fixed_rate.propagate(signal_information)
                     latencies.append(signal_information.latency)
                     noises.append(signal_information.noise_power)
                     snrs.append(10 * np.log10(1/signal_information.isnr))
                     #snrs.append(10 * np.log10(signal_information.signal_power / signal_information.noise_power))
-
-
             df['path'] = paths
             df['latency'] = latencies
             df['noise'] = noises
@@ -201,7 +200,8 @@ if __name__ == '__main__':
     plt.show()
     print("Average bit rate for fixed rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
-    '''
+
+
     # Shannon
     network_shannon = Network('../resources/nodes_full_shannon.json')
     network_shannon.connect()
@@ -256,4 +256,3 @@ if __name__ == '__main__':
     print("Average bit rate for flex rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
 
-    '''

@@ -6,7 +6,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import erfcinv as erfcinv
-
+import copy
 n_channel = 10
 ber_t = 1e-3
 Rs = 32e9
@@ -121,7 +121,7 @@ class Network(object):
 
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
-            node.switching_matrix = self.switching_matrix[node_label]
+            node.switching_matrix = copy.deepcopy(self.switching_matrix[node_label])
             # print("Node: ", node_label)
             # print("Switching matrix in node: ", node.switching_matrix)
             for connected_node in node.connected_nodes:
@@ -174,6 +174,7 @@ class Network(object):
                 best_path_array, best_path, channel = self.find_best_latency(connection.input, connection.output)
 
             if best_path is not None:
+                # path string without "->"
                 path_label = ''
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
@@ -187,7 +188,7 @@ class Network(object):
                 else:
                     print("PATH: ", best_path)
                     self.propagate(lightpath)
-                    connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
+                    connection.snr = self.snr_dB(lightpath)
                     connection.latency = lightpath.latency
                     connection.bit_rate = bit_rate
                     #print("best path: ", best_path)
@@ -198,8 +199,8 @@ class Network(object):
         # Restore network
         self.restore_network()
 
-    def snr_dB(self, signal_power, noise_power):
-        return 10 * np.log10(signal_power / noise_power)
+    def snr_dB(self, lightpath):
+        return (10 * np.log10(1/lightpath.isnr))
 
     def update_routing_space(self, best_path):
         if best_path is not None:  # routing space not empty
@@ -239,7 +240,7 @@ class Network(object):
         lines_dict = self.lines
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
-            node.switching_matrix = self.switching_matrix[node_label]
+            node.switching_matrix = copy.deepcopy(self.switching_matrix[node_label])
 
         for line_label in lines_dict:
             line = lines_dict[line_label]
@@ -254,6 +255,7 @@ class Network(object):
             path_label += node + '->'
         gsnr_dB = self.weighted_path[self.weighted_path['path'] == path_label[:-2]]['snr'].values[0] #dB
         gsnr = 10**(gsnr_dB/10)
+        print("GSNR linear: ", gsnr, " GSNR dB: " ,gsnr_dB)
         if strategy == 'fixed_rate':
             if gsnr >= 2 * ((erfcinv(2 * ber_t)) ** 2) * lightpath.symbol_rate / Bn:
                 return 100e9

@@ -5,6 +5,7 @@ from Lab07.core.Info.Lightpath import Lightpath
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+import copy
 
 n_channel = 10
 
@@ -113,7 +114,7 @@ class Network(object):
 
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
-            node.switching_matrix = self.switching_matrix[node_label]
+            node.switching_matrix = copy.deepcopy(self.switching_matrix[node_label])
             # print("Node: ", node_label)
             # print("Switching matrix in node: ", node.switching_matrix)
             for connected_node in node.connected_nodes:
@@ -222,7 +223,7 @@ class Network(object):
         lines_dict = self.lines
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
-            node.switching_matrix = self.switching_matrix[node_label]
+            node.switching_matrix = copy.deepcopy(self.switching_matrix[node_label])
 
         for line_label in lines_dict:
             line = lines_dict[line_label]

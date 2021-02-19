@@ -1,7 +1,6 @@
-from Lab06.core.classes.Info.SignalInformation import SignalInformation
-
-from Lab06.core.classes.Elements.Network import Line, Network
-from Lab06.core.classes.Elements.Connection import Connection
+from Lab06.core.Info import SignalInformation
+from Lab06.core.Elements.Network import Network
+from Lab06.core.Elements.Connection import Connection
 
 import pandas as pd
 import json

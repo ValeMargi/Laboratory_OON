@@ -261,7 +261,7 @@ class Network(object):
             path_label += node + '->'
         gsnr_dB = self.weighted_path[self.weighted_path['path'] == path_label[:-2]]['snr'].values[0]  # dB
         gsnr = 10 ** (gsnr_dB / 10)
-        print("GSNR linear: ", gsnr, " GSNR dB: ", gsnr_dB)
+        #print("GSNR linear: ", gsnr, " GSNR dB: ", gsnr_dB)
         if strategy == 'fixed_rate':
             if gsnr >= 2 * ((erfcinv(2 * ber_t)) ** 2) * lightpath.symbol_rate / Bn:
                 return 100e9
@@ -295,7 +295,7 @@ class Network(object):
         if connection.snr != 0:
             if connection.bit_rate >= traffic_matrix[input_rand][output_rand]:
                 traffic_matrix[input_rand][output_rand] = 0
-                return 1  # decrement
+                return 1  # decrement, capacity guaranteed
             else:
                 traffic_matrix[input_rand][output_rand] -= connection.bit_rate
                 return 0

@@ -112,7 +112,7 @@ class Line(object):
 
         # Update noise
         signal_power = signal_information.signal_power
-        print("path before noise_gen ", signal_information.path)
+        #print("path before noise_gen ", signal_information.path)
         noise = self.noise_generation(signal_information)
         signal_information.add_noise(noise)
 
@@ -134,9 +134,10 @@ class Line(object):
     def nli_generation(self, signal ):
         # print("log", ((np.pi ** 2) * self.beta2 * (Rs ** 2) * (n_channel ** (2 * Rs / df))))
         nli = signal.signal_power ** 3 * self.eta_nli_generation() * self.n_span * Bn
-        print("PATH signal: ", signal.path)
+        '''print("PATH signal: ", signal.path)
         print("N_SPAN: ", self.n_span, "Bn: ", Bn, "Pch_base: ", signal.signal_power)
         print("NLI: ", nli, "ETA: ", self.eta_nli_generation(), "ASE: ", self.ase_generation())
+        '''
         return nli
 
     def optimized_launch_power(self):

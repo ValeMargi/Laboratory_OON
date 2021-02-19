@@ -45,6 +45,7 @@ class Node(object):
                 if previous_node is not None:
                     channels = self.switching_matrix[previous_node][line_label[1]]
                     channels[lighpath.channel] = 0
+                    # Commentare queste righe per considerare le switching matrices statiche
                     if lighpath.channel != 9:
                         channels[lighpath.channel + 1] = 0
                     if lighpath.channel != 0:

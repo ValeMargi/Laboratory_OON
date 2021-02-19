@@ -3,7 +3,7 @@ from Lab07.core.Elements.Network import Network
 from Lab07.core.Elements.Connection import Connection
 
 import pandas as pd
-import json
+import csv
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rand
@@ -69,105 +69,11 @@ if __name__ == '__main__':
                 break
         connections_full.append(Connection(input_rand, output_rand, 1e-3))
     '''
-    connections_full.append(Connection('F', 'A', 1e-3))
-    connections_full.append(Connection('D', 'A', 1e-3))
-    connections_full.append(Connection('A', 'B', 1e-3))
-    connections_full.append(Connection('F', 'E', 1e-3))
-    connections_full.append(Connection('A', 'D', 1e-3))
-    connections_full.append(Connection('B', 'D', 1e-3))
-    connections_full.append(Connection('A', 'D', 1e-3))
-    connections_full.append(Connection('D', 'C', 1e-3))
-    connections_full.append(Connection('D', 'C', 1e-3))
-    connections_full.append(Connection('A', 'E', 1e-3))
-    connections_full.append(Connection('A', 'C', 1e-3))
-    connections_full.append(Connection('D', 'F', 1e-3))
-    connections_full.append(Connection('A', 'D', 1e-3))
-    connections_full.append(Connection('F', 'D', 1e-3))
-    connections_full.append(Connection('F', 'A', 1e-3))
-    connections_full.append(Connection('D', 'F', 1e-3))
-    connections_full.append(Connection('C', 'F', 1e-3))
-    connections_full.append(Connection('D', 'B', 1e-3))
-    connections_full.append(Connection('C', 'D', 1e-3))
-    connections_full.append(Connection('D', 'E', 1e-3))
-    connections_full.append(Connection('E', 'A', 1e-3))
-    connections_full.append(Connection('A', 'D', 1e-3))
-    connections_full.append(Connection('E', 'B', 1e-3))
-    connections_full.append(Connection('F', 'E', 1e-3))
-    connections_full.append(Connection('B', 'F', 1e-3))
-    connections_full.append(Connection('E', 'A', 1e-3))
-    connections_full.append(Connection('A', 'E', 1e-3))
-    connections_full.append(Connection('A', 'E', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('C', 'A', 1e-3))
-    connections_full.append(Connection('B', 'E', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('A', 'B', 1e-3))
-    connections_full.append(Connection('D', 'A', 1e-3))
-    connections_full.append(Connection('A', 'F', 1e-3))
-    connections_full.append(Connection('E', 'B', 1e-3))
-    connections_full.append(Connection('C', 'A', 1e-3))
-    connections_full.append(Connection('C', 'F', 1e-3))
-    connections_full.append(Connection('D', 'B', 1e-3))
-    connections_full.append(Connection('E', 'F', 1e-3))
-    connections_full.append(Connection('A', 'D', 1e-3))
-    connections_full.append(Connection('D', 'E', 1e-3))
-    connections_full.append(Connection('A', 'C', 1e-3))
-    connections_full.append(Connection('E', 'B', 1e-3))
-    connections_full.append(Connection('A', 'B', 1e-3))
-    connections_full.append(Connection('E', 'D', 1e-3))
-    connections_full.append(Connection('F', 'D', 1e-3))
-    connections_full.append(Connection('A', 'F', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('C', 'B', 1e-3))
-    connections_full.append(Connection('F', 'E', 1e-3))
-    connections_full.append(Connection('D', 'E', 1e-3))
-    connections_full.append(Connection('B', 'A', 1e-3))
-    connections_full.append(Connection('F', 'E', 1e-3))
-    connections_full.append(Connection('D', 'A', 1e-3))
-    connections_full.append(Connection('F', 'C', 1e-3))
-    connections_full.append(Connection('D', 'B', 1e-3))
-    connections_full.append(Connection('C', 'E', 1e-3))
-    connections_full.append(Connection('C', 'B', 1e-3))
-    connections_full.append(Connection('F', 'C', 1e-3))
-    connections_full.append(Connection('C', 'A', 1e-3))
-    connections_full.append(Connection('D', 'C', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('A', 'C', 1e-3))
-    connections_full.append(Connection('B', 'E', 1e-3))
-    connections_full.append(Connection('E', 'A', 1e-3))
-    connections_full.append(Connection('F', 'D', 1e-3))
-    connections_full.append(Connection('C', 'A', 1e-3))
-    connections_full.append(Connection('D', 'B', 1e-3))
-    connections_full.append(Connection('A', 'E', 1e-3))
-    connections_full.append(Connection('E', 'B', 1e-3))
-    connections_full.append(Connection('C', 'D', 1e-3))
-    connections_full.append(Connection('D', 'E', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('D', 'C', 1e-3))
-    connections_full.append(Connection('D', 'C', 1e-3))
-    connections_full.append(Connection('D', 'C', 1e-3))
-    connections_full.append(Connection('E', 'F', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('A', 'B', 1e-3))
-    connections_full.append(Connection('A', 'E', 1e-3))
-    connections_full.append(Connection('F', 'D', 1e-3))
-    connections_full.append(Connection('C', 'A', 1e-3))
-    connections_full.append(Connection('E', 'B', 1e-3))
-    connections_full.append(Connection('C', 'A', 1e-3))
-    connections_full.append(Connection('F', 'C', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('B', 'A', 1e-3))
-    connections_full.append(Connection('D', 'B', 1e-3))
-    connections_full.append(Connection('A', 'F', 1e-3))
-    connections_full.append(Connection('E', 'C', 1e-3))
-    connections_full.append(Connection('E', 'B', 1e-3))
-    connections_full.append(Connection('D', 'C', 1e-3))
-    connections_full.append(Connection('A', 'F', 1e-3))
-    connections_full.append(Connection('B', 'D', 1e-3))
-    connections_full.append(Connection('D', 'C', 1e-3))
-    connections_full.append(Connection('A', 'E', 1e-3))
-    connections_full.append(Connection('B', 'F', 1e-3))
+
+    with open('../resources/connectionsFile.csv') as csv100ConnectionsFile:
+        csvReader = csv.reader(csv100ConnectionsFile)
+        for row in csvReader:
+            connections_full.append(Connection(row[0], row[1], float(row[2])))
 
     # Saving 100 connections in a variable in order to create
     # a network with not full switching matrices considering the same connections
@@ -186,32 +92,13 @@ if __name__ == '__main__':
     plt.hist(snr_connections, label='Snr distribution')
     plt.title('SNR distribution with full switching matrices')
     plt.xlabel('SNR [dB]')
-    plt.ylabel('Connections')
-    plt.xticks([1, 10, 20, 30, 40,50])
+    plt.ylabel('Number of connections')
     plt.show()
 
     ''' Printing the connections
         for i in range(0, 100):
             y = json.dumps(connections[i].__dict__)
             print(y)
-    '''
-
-    '''
-    
-    # Stream with label='latency'
-    network.stream(connections)
-
-    for i in range(0, 100):
-        y = json.dumps(connections[i].__dict__)
-        print(y)
-
-
-    # plot the distribution of all the latencies
-    latency_connections = [c.latency for c in connections]
-    plt.figure()
-    plt.hist(latency_connections, label='Latency distribution')
-    plt.title('Latency distribution')
-    plt.show()
     '''
 
     network_not_full = Network('../resources/nodes_not_full.json')
@@ -228,7 +115,7 @@ if __name__ == '__main__':
     plt.hist(snr_connections, label='Snr distribution')
     plt.title('SNR distribution with not full switching matrices')
     plt.xlabel('SNR [dB]')
-    plt.ylabel('Connections')
-    plt.xticks([1, 10, 20, 30, 40,50])
+    plt.ylabel('Number of connections')
+    #plt.xticks([1, 10, 20, 30, 40,50])
     plt.show()
 

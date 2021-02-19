@@ -1,7 +1,7 @@
 import pandas as pd
 from Lab05.core.Elements.Node import Node
 from Lab05.core.Elements.Line import Line
-from Lab05.core.Info import Lightpath
+from Lab05.core.Info.Lightpath import Lightpath
 import json
 import numpy as np
 import matplotlib.pyplot as plt

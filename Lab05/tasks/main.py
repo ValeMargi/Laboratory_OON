@@ -1,9 +1,7 @@
-from Lab05.core.classes.Info.Lightpath import Lightpath
-from Lab05.core.classes.Info.SignalInformation import SignalInformation
+from Lab05.core.Info import SignalInformation
 
-from Lab05.core.classes.Elements.Network import Line, Network
-from Lab05.core.classes.Elements.Connection import Connection
-from Lab05.core.classes.Elements.Node import Node
+from Lab05.core.Elements.Network import Network
+from Lab05.core.Elements import Connection
 
 import pandas as pd
 import json

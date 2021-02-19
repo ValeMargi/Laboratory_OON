@@ -175,7 +175,7 @@ if __name__ == '__main__':
     connections_shannon = connections_fixed_rate[:]
     connections_flex_rate = connections_fixed_rate[:]
 
-    print('Stream with label=snr')
+    #print('Stream with label=snr')
     network_fixed_rate.stream(connections_fixed_rate, 'snr')
 
     # print('Printing route_space\n\n')
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     network_shannon.weighted_path = df
     network_shannon.update_routing_space(None)  # Restore routing space
 
-    print('Stream with label=snr')
+    #print('Stream with label=snr')
     network_shannon.stream(connections_shannon, 'snr')
 
     # plot the distribution of all the snrs
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     plt.xlabel('bit rate [bps]')
     plt.ylabel('Connections')
     plt.show()
-    print("Average bit rate for shannon rate", st.mean(bit_rate_connections))
+    print("Average bit rate for Shannon", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
 
 
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     network_flex_rate.weighted_path = df
     network_flex_rate.update_routing_space(None)  # Restore routing space
 
-    print('Stream with label=snr')
+    #print('Stream with label=snr')
     network_flex_rate.stream(connections_flex_rate, 'snr')
 
     # plot the distribution of all the snrs

@@ -1,7 +1,6 @@
 from scipy.constants import c, h
 from Lab09.core.Info.Lightpath import Lightpath
 import numpy as np
-from Lab09.core.Elements.Network import Bn
 from math import ceil
 
 n_channel = 10
@@ -14,6 +13,7 @@ gamma = 1.27e-3 # inv(WM)
 df = 50e9  # GHz
 Rs = 32e9  # GHz
 Pch_base = 1e-3
+Bn = 12.5e9  # Noise Bandwidth [GHz]
 
 class Line(object):
     def __init__(self, line_dict):

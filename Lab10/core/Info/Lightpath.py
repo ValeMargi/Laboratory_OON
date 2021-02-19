@@ -1,6 +1,6 @@
 from Lab10.core.Info.SignalInformation import SignalInformation
-df = 50e9 #GHz
-Rs = 32e9 #GHz
+df = 50e9  # WDM channel spacing [Hz]
+Rs = 32e9  # Symbol Rate [Hz]
 
 
 class Lightpath(SignalInformation):

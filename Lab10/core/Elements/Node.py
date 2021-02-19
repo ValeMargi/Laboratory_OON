@@ -51,6 +51,8 @@ class Node(object):
         if len(path) > 1:
             line_label = path[:2]
             if type(lightpath) is Lightpath:
+                ''' Setting in the switching matrix for the current node the channel 
+                used by the lightpath as occupied and the same for the adjacent channels'''
                 if previous_node is not None:
                     channels = self.switching_matrix[previous_node][line_label[1]]
                     channels[lightpath.channel] = 0
@@ -60,6 +62,7 @@ class Node(object):
                         channels[lightpath.channel - 1] = 0
 
             line = self.successive[line_label]
+            ''' Find the optmized power for the next line'''
             lightpath.signal_power = line.optimized_launch_power()
             lightpath.next()
             lightpath = line.propagate(lightpath)

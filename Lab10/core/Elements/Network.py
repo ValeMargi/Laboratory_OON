@@ -15,8 +15,8 @@ import random as rand
 
 n_channel = 10
 ber_t = 1e-3
-Rs = 32e9
-Bn = 12.5e9
+Rs = 32e9  # Symbol Rate [Hz]
+Bn = 12.5e9  # Noise Bandwidth [GHz]
 
 
 class Network(object):
@@ -53,7 +53,6 @@ class Network(object):
                 self._lines[line_label] = line
 
             self._switching_matrix[node_label] = node_dict['switching_matrix']
-            # print("switching matrix ", self.switching_matrix)
 
     @property
     def nodes(self):
@@ -127,9 +126,10 @@ class Network(object):
 
         for node_label in nodes_dict:
             node = nodes_dict[node_label]
+            '''Assinging switching matrix by using deepcopy to avoid 
+            reflection of modification in the original switching matrix of Network class '''
             node.switching_matrix = copy.deepcopy(self.switching_matrix[node_label])
-            # print("Node: ", node_label)
-            # print("Switching matrix in node: ", node.switching_matrix)
+
             for connected_node in node.connected_nodes:
                 line_label = node_label + connected_node
                 line = lines_dict[line_label]
@@ -150,9 +150,11 @@ class Network(object):
                 path = i[0]  # path
                 channel = self.channel_free(path)
                 if channel is not None:
+                    # [best_path, latency, noise, snr], best_path, channel selected for the best path
                     return i, i[0], channel
         return None, None, None
 
+    ''' Method to find the index of the first channel free for the specified path'''
     def channel_free(self, path):
         path_in_route_space = self.route_space[self.route_space['path'] == path]
         for i in range(n_channel):
@@ -169,6 +171,7 @@ class Network(object):
                 path = i[0]
                 channel = self.channel_free(path)
                 if channel is not None:
+                    # [best_path, latency, noise, snr], best_path, channel selected for the best path
                     return i, i[0], channel
         return None, None, None
 
@@ -192,25 +195,23 @@ class Network(object):
                     connection.latency = -1  # None
                     connection.bit_rate = 0
                 else:
-                    # print("PATH: ", best_path)
                     self.propagate(lightpath)
                     connection.snr = self.snr_dB(lightpath)
                     connection.latency = lightpath.latency
                     connection.bit_rate = bit_rate
-                    # print("best path: ", best_path)
+                    # Updating routing space after lightpath propagation
                     self.update_routing_space(best_path)  # 0= route space not empty
             else:
+                ''' if there is no best path for snr and latency'''
                 connection.snr = 0
                 connection.latency = -1  # None
-        # Restore network
-        # self.restore_network()
 
     def snr_dB(self, lightpath):
         return (10 * np.log10(1 / lightpath.isnr))
 
     def update_routing_space(self, best_path):
         if best_path is not None:  # routing space not empty
-            # Aggiorno il primo arco del path in esame
+            # Update the first line in the current path
             current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
             first_line = self.lines[best_path[0] + best_path[3]]
             self.route_space.at[current_index, 'channels'] = first_line.state
@@ -220,21 +221,20 @@ class Network(object):
             node1 = 3
             first_line = self.lines[path[0] + path[node1]]
             result = first_line.state
+            '''Finding channel occupancy for the path except for the first and last line '''
             for node_i in range(6, len(path), 3):
                 line = self.lines[path[node1] + path[node_i]]
                 result = np.multiply(result, line.state)
                 result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]], result)
 
-                # Aggiorno le entry nel route space corrispondenti ai singoli archi presenti nel path
-                # solo se il path in esame è il path aggiornato nel metodo stream()
+                # Updating each single line present in the the path after stream() method
                 if best_path is not None and path == best_path:  # routing space not empty
                     current_index = self.route_space[self.route_space['path'] == path[node1:node_i + 1]].index.values[0]
                     self.route_space.at[current_index, 'channels'] = line.state
 
                 node1 = node_i  # for
             if best_path is None:  # routing space empty
-                self.route_space = self.route_space.append({'path': path, 'channels': result}, ignore_index=True,
-                                                           sort=None)
+                self.route_space = self.route_space.append({'path': path, 'channels': result}, ignore_index=True, sort=None)
             else:
                 current_index = self.route_space[self.route_space['path'] == path].index.values[0]
                 self.route_space.at[current_index, 'channels'] = result
@@ -279,11 +279,13 @@ class Network(object):
         elif strategy == 'shannon':
             return 2 * lightpath.symbol_rate * np.log2(1 + (gsnr * Bn / lightpath.symbol_rate))
 
-    def connections_management_traffic_matrix(self, traffic_matrix, connections, signal_power):
+    def request_generation_traffic_matrix(self, traffic_matrix, connections, signal_power):
         nodes = list(self.nodes.keys())
         while True:
             input_rand = rand.choice(nodes)
             output_rand = rand.choice(nodes)
+            ''' Generating connections only for input_node != output_node and
+             if the element corresponding to input, output node in the traffic matrix has still available traffic to allocate'''
             if input_rand != output_rand and traffic_matrix[input_rand][output_rand] != 0 and \
                     traffic_matrix[input_rand][output_rand] != inf:
                 break
@@ -292,13 +294,18 @@ class Network(object):
         self.stream(current_connections, 'snr')
         connections.append(connection)
 
+        # Updating traffic matrix if a best path is found in the stream() method
         if connection.snr != 0:
+            # Bit rate request for the connection is completely satisfied
             if connection.bit_rate >= traffic_matrix[input_rand][output_rand]:
                 traffic_matrix[input_rand][output_rand] = 0
                 return 1  # decrement, capacity guaranteed
             else:
+                # Updating the remaining capability after having satisfied the capability for the current connections
                 traffic_matrix[input_rand][output_rand] -= connection.bit_rate
                 return 0
         else:
             traffic_matrix[input_rand][output_rand] = inf
+        # If is not possible to define a suitable path for the connection,
+        # we decrement the number of all possible connections by returning 1
         return 1  # decrement

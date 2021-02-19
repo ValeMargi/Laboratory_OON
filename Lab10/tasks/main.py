@@ -1,15 +1,14 @@
 from Lab10.core.Info.SignalInformation import SignalInformation
 from Lab10.core.Elements.Network import Network
-from Lab10.core.Elements.Connection import Connection
 
 import pandas as pd
-import json
 import numpy as np
 import matplotlib.pyplot as plt
-import random as rand
 import statistics as st
+
 BIT_RATE_100G = 100e9
-M = 8
+M = 8  # Full network saturatuion with fixed rate
+# M=32 Full network saturatuion with shannon
 P_BASE = 1e-3
 
 if __name__ == '__main__':
@@ -38,8 +37,7 @@ if __name__ == '__main__':
                     signal_information = network_fixed_rate.propagate(signal_information)
                     latencies.append(signal_information.latency)
                     noises.append(signal_information.noise_power)
-                    snrs.append(10 * np.log10(1/signal_information.isnr))
-                    #snrs.append(10 * np.log10(signal_information.signal_power / signal_information.noise_power))
+                    snrs.append(10 * np.log10(1 / signal_information.isnr))
             df['path'] = paths
             df['latency'] = latencies
             df['noise'] = noises
@@ -54,23 +52,21 @@ if __name__ == '__main__':
 
     # Create route space
     network_fixed_rate.update_routing_space(None)  # best_path = None => route space empty
-    # print("Initial routing space for network with full switching matrices", network_with_full_switching_matrix.route_space)
-
 
     node_number = len(network_fixed_rate.nodes)
-    #traffic_matrix = [[BIT_RATE_100G*M] * node_number for _ in range(node_number)]
-    #for i in range(node_number):  T[i][i] = 0
     traffic_matrix = {}
+    #  Populate traffic matrix
     for node in network_fixed_rate.nodes.keys():
         traffic_matrix[node] = {}
         for node_ in network_fixed_rate.nodes.keys():
-            if node!=node_:
-                traffic_matrix[node][node_] = BIT_RATE_100G*M
+            if node != node_:
+                traffic_matrix[node][node_] = BIT_RATE_100G * M
 
-    completed_connections = node_number*node_number-node_number
-    connections=[]
-    while completed_connections>0:
-        completed_connections -= network_fixed_rate.connections_management_traffic_matrix(traffic_matrix, connections, P_BASE)
+    completed_connections = node_number * node_number - node_number  # number of all possible connections
+    connections = []
+    # while there are still some possible connections to satisfy, the request_generation_traffic_matrix() method il call
+    while completed_connections > 0:
+        completed_connections -= network_fixed_rate.request_generation_traffic_matrix(traffic_matrix, connections,P_BASE)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections if c.bit_rate != 0]
@@ -91,44 +87,23 @@ if __name__ == '__main__':
     print("Average bit rate for fixed rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
 
-
-
-
-    # Creating 100 connections with signal_power equal to 1 and with input/output nodes randomly chosen
-    #connections_fixed_rate = []
-
-
-
-    '''
-    nodes = 'ABCDEF'
-    for i in range(0, 100):
-        input_rand = rand.choice(nodes)
-        while True:
-            output_rand = rand.choice(nodes)
-            if input_rand != output_rand:
-                break
-        connections_full.append(Connection(input_rand, output_rand, 1e-3))
-    '''
-
     network_flex = Network('../resources/nodes_full_flex_rate.json')
     network_flex.connect()
     network_flex.weighted_path = df
     network_flex.update_routing_space(None)  # Restore routing space
 
     node_number = len(network_flex.nodes)
-    #traffic_matrix = [[BIT_RATE_100G*M] * node_number for _ in range(node_number)]
-    #for i in range(node_number):  T[i][i] = 0
     traffic_matrix = {}
     for node in network_flex.nodes.keys():
         traffic_matrix[node] = {}
         for node_ in network_flex.nodes.keys():
-            if node!=node_:
-                traffic_matrix[node][node_] = BIT_RATE_100G*M
+            if node != node_:
+                traffic_matrix[node][node_] = BIT_RATE_100G * M
 
-    completed_connections = node_number*node_number-node_number
-    connections=[]
-    while completed_connections>0:
-        completed_connections -= network_flex.connections_management_traffic_matrix(traffic_matrix, connections, P_BASE)
+    completed_connections = node_number * node_number - node_number
+    connections = []
+    while completed_connections > 0:
+        completed_connections -= network_flex.request_generation_traffic_matrix(traffic_matrix, connections, P_BASE)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections if c.bit_rate != 0]
@@ -145,11 +120,10 @@ if __name__ == '__main__':
     plt.title('Bit rate of accepted connections - Flex rate')
     plt.xlabel('bit rate [bps]')
     plt.ylabel('Number of connections')
-    #plt.xticks([0e11, 0.02e11, 0.04e11, 0.06e11, 0.08e11, 0.1e11])
+    # plt.xticks([0e11, 0.02e11, 0.04e11, 0.06e11, 0.08e11, 0.1e11])
     plt.show()
     print("Average bit rate for flex rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
-
 
     # Shannon
     network_shannon = Network('../resources/nodes_full_shannon.json')
@@ -158,19 +132,17 @@ if __name__ == '__main__':
     network_shannon.update_routing_space(None)  # Restore routing space
 
     node_number = len(network_shannon.nodes)
-    #traffic_matrix = [[BIT_RATE_100G*M] * node_number for _ in range(node_number)]
-    #for i in range(node_number):  T[i][i] = 0
     traffic_matrix = {}
     for node in network_shannon.nodes.keys():
         traffic_matrix[node] = {}
         for node_ in network_shannon.nodes.keys():
-            if node!=node_:
-                traffic_matrix[node][node_] = BIT_RATE_100G*M
+            if node != node_:
+                traffic_matrix[node][node_] = BIT_RATE_100G * M
 
-    completed_connections = node_number*node_number-node_number
-    connections=[]
-    while completed_connections>0:
-        completed_connections -= network_shannon.connections_management_traffic_matrix(traffic_matrix, connections, P_BASE)
+    completed_connections = node_number * node_number - node_number  # number of all possible connections
+    connections = []
+    while completed_connections > 0:
+        completed_connections -= network_shannon.request_generation_traffic_matrix(traffic_matrix, connections, P_BASE)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections]
@@ -180,7 +152,7 @@ if __name__ == '__main__':
     plt.xlabel('SNR [dB]')
     plt.ylabel('Number of connections')
     plt.show()
-    bit_rate_connections = [c.bit_rate for c in connections if c.bit_rate!=0]
+    bit_rate_connections = [c.bit_rate for c in connections if c.bit_rate != 0]
     plt.figure()
     plt.hist(bit_rate_connections, label='Bit rate histogram')
     plt.title('Bit rate of accepted connections - Shannon')
@@ -191,14 +163,3 @@ if __name__ == '__main__':
     print("Total capacity", sum(bit_rate_connections))
 
 
-
-'''
-    import csv
-    with open('../resources/connectionsFile.csv') as csv100ConnectionsFile:
-        csvReader = csv.reader(csv100ConnectionsFile)
-        for row in csvReader:
-            connection_ = Connection(row[0], row[1], float(row[2]))
-            connections_100 = []
-            print("new connection: ",connection_)
-            connections_100.append(connection_)
-'''

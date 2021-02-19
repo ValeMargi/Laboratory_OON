@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import statistics as st
+import copy
+from math import inf
 
 BIT_RATE_100G = 100e9
 M = 8  # Full network saturatuion with fixed rate
@@ -61,6 +63,8 @@ if __name__ == '__main__':
         for node_ in network_fixed_rate.nodes.keys():
             if node != node_:
                 traffic_matrix[node][node_] = BIT_RATE_100G * M
+            else:
+                traffic_matrix[node][node_] = inf
 
     completed_connections = node_number * node_number - node_number  # number of all possible connections
     connections = []
@@ -87,6 +91,27 @@ if __name__ == '__main__':
     print("Average bit rate for fixed rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
 
+    a = df.from_dict(traffic_matrix).to_numpy(dtype=float, na_value=None).astype(float)
+    fig, ax = plt.subplots()
+
+    for i in range(df.from_dict(traffic_matrix).shape[0]):
+        for j in range(df.from_dict(traffic_matrix).shape[1]):
+            text = ax.text(j, i, a[i, j],
+                           ha="center", va="center", color="w")
+    x_labels = ['A', 'B', 'C', 'D', 'E', 'F']
+    y_labels = ['A', 'B', 'C', 'D', 'E', 'F']
+    # Create dummy x values, with a value for every label entry
+    x = np.r_[:len(x_labels)]
+    y = np.r_[:len(y_labels)]
+    # Change the xticks and yticks as desired
+    plt.xticks(x, x_labels)
+    plt.yticks(y, y_labels)
+    cmap = plt.cm.jet
+    cmap = copy.copy(plt.cm.get_cmap("jet"))
+    cmap.set_bad('orange', 1.)
+    ax.imshow(a, interpolation='nearest', cmap=cmap)
+
+
     network_flex = Network('../resources/nodes_full_flex_rate.json')
     network_flex.connect()
     network_flex.weighted_path = df
@@ -99,6 +124,9 @@ if __name__ == '__main__':
         for node_ in network_flex.nodes.keys():
             if node != node_:
                 traffic_matrix[node][node_] = BIT_RATE_100G * M
+            else:
+                traffic_matrix[node][node_] = inf
+
 
     completed_connections = node_number * node_number - node_number
     connections = []
@@ -125,6 +153,26 @@ if __name__ == '__main__':
     print("Average bit rate for flex rate", st.mean(bit_rate_connections))
     print("Total capacity", sum(bit_rate_connections))
 
+    a = df.from_dict(traffic_matrix).to_numpy(dtype=float, na_value=None).astype(float)
+    fig, ax = plt.subplots()
+
+    for i in range(df.from_dict(traffic_matrix).shape[0]):
+        for j in range(df.from_dict(traffic_matrix).shape[1]):
+            text = ax.text(j, i, a[i, j],
+                           ha="center", va="center", color="w")
+    x_labels = ['A', 'B', 'C', 'D', 'E', 'F']
+    y_labels = ['A', 'B', 'C', 'D', 'E', 'F']
+    # Create dummy x values, with a value for every label entry
+    x = np.r_[:len(x_labels)]
+    y = np.r_[:len(y_labels)]
+    # Change the xticks and yticks as desired
+    plt.xticks(x, x_labels)
+    plt.yticks(y, y_labels)
+    cmap = plt.cm.jet
+    cmap = copy.copy(plt.cm.get_cmap("jet"))
+    cmap.set_bad('orange', 1.)
+    ax.imshow(a, interpolation='nearest', cmap=cmap)
+
     # Shannon
     network_shannon = Network('../resources/nodes_full_shannon.json')
     network_shannon.connect()
@@ -138,6 +186,8 @@ if __name__ == '__main__':
         for node_ in network_shannon.nodes.keys():
             if node != node_:
                 traffic_matrix[node][node_] = BIT_RATE_100G * M
+            else:
+                traffic_matrix[node][node_] = inf
 
     completed_connections = node_number * node_number - node_number  # number of all possible connections
     connections = []
@@ -163,3 +213,23 @@ if __name__ == '__main__':
     print("Total capacity", sum(bit_rate_connections))
 
 
+
+    a = df.from_dict(traffic_matrix).to_numpy(dtype=float, na_value=None).astype(float)
+    fig, ax = plt.subplots()
+
+    for i in range(df.from_dict(traffic_matrix).shape[0]):
+        for j in range(df.from_dict(traffic_matrix).shape[1]):
+            text = ax.text(j, i, a[i, j],
+                           ha="center", va="center", color="w")
+    x_labels = ['A', 'B', 'C', 'D', 'E', 'F']
+    y_labels = ['A', 'B', 'C', 'D', 'E', 'F']
+    # Create dummy x values, with a value for every label entry
+    x = np.r_[:len(x_labels)]
+    y = np.r_[:len(y_labels)]
+    # Change the xticks and yticks as desired
+    plt.xticks(x, x_labels)
+    plt.yticks(y, y_labels)
+    cmap = plt.cm.jet
+    cmap = copy.copy(plt.cm.get_cmap("jet"))
+    cmap.set_bad('orange', 1.)
+    ax.imshow(a, interpolation='nearest', cmap=cmap)

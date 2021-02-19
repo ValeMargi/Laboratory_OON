@@ -1,7 +1,7 @@
 import pandas as pd
 from Lab06.core.Elements.Node import Node
 from Lab06.core.Elements.Line import Line
-from Lab06.core.Info import Lightpath
+from Lab06.core.Info.Lightpath import Lightpath
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -162,10 +162,7 @@ class Network(object):
                 path_label = ''
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
-                '''print("*****")
-                print("BEST PATH: ", best_path)
-                print("CHANNEL OCCUPIED: ", channel)
-                print("*****")'''
+                print("**** Best path: ", best_path, " channel occupied: ", channel,"****\n")
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
                 # DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
@@ -176,7 +173,6 @@ class Network(object):
                 connection.snr = 0
                 connection.latency = -1  # None
 
-            # print("****\nBest path: ", best_path, " channel: ", channel, "\n")
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)
@@ -214,5 +210,4 @@ class Network(object):
 
                 current_index = self.route_space[self.route_space['path'] == path].index.values[0]
                 self.route_space.at[current_index, 'channels'] = result
-
             # print(self.route_space)

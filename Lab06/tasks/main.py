@@ -1,9 +1,8 @@
-from Lab06.core.Info import SignalInformation
+from Lab06.core.Info.SignalInformation import SignalInformation
 from Lab06.core.Elements.Network import Network
 from Lab06.core.Elements.Connection import Connection
 
 import pandas as pd
-import json
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rand
@@ -31,12 +30,6 @@ if __name__ == '__main__':
                     for node in path:
                         path_string += node + '->'
                     paths.append(path_string[:-2])
-                    # Propagation
-                    '''l = Lightpath( 1, path, 0)
-                    l = network.propagate(l)
-                    latencies.append(l.latency)
-                    noises.append(l.noise_power)
-                    '''
                     signal_information = SignalInformation(1e-3, path)
                     signal_information = network.propagate(signal_information)
                     latencies.append(signal_information.latency)
@@ -64,14 +57,6 @@ if __name__ == '__main__':
     network.update_routing_space(None) # best_path = None => route space emoty
     print("Route space initial", network.route_space)
 
-
-    #print('\nBest_highest_snr with path A -> B: \n', network.find_best_snr('A', 'B'))
-    #print('\nBest_highest_snr with path C -> D: \n', network.find_best_snr('C', 'D'))
-    #print('\nBest_lowest_latency with path A -> B: \n', network.find_best_latency('A', 'B'))
-    #print('\nBest_lowest_latency with path C -> D: \n', network.find_best_latency('C', 'D'))
-    #print('\nBest_lowest_latency with path E -> D: \n', network.find_best_latency('E', 'D'))
-    
-
     connections = []
     nodes = 'ABCDEF'
     for i in range(0, 100):
@@ -82,48 +67,44 @@ if __name__ == '__main__':
                 break
         connections.append(Connection(input_rand, output_rand, 1e-3))
 
-    
-    '''
-    print('*************************************************************')
-    print('Test path A->B\n\n\n')
-        test_connection = []
-        test_connection.append(Connection('A', 'B', 1e-3))
-        network.stream(test_connection, 'snr')
-        print('Test_connection: \n\n ', test_connection)
-    '''
-
-
     print('Stream with label=snr')
     network.stream(connections, 'snr')
 
-    print('Printing route_space after stream with 100 connections label=snr\n\n')
-    print(network.route_space)
+    #print('Printing route_space after stream with 100 connections label=snr\n\n')
+    #print(network.route_space)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections]
     plt.figure()
     plt.hist(snr_connections, label='Snr distribution')
     plt.title('SNR distribution')
+    plt.ylabel('Number of connections')
+    plt.xlabel('SNR [dB]')
     plt.show()
 
-    for i in range(0, 100):
+    '''for i in range(0, 100):
         y = json.dumps(connections[i].__dict__)
         print(y)
-
-    
     '''
-    # Stream with label='latency'
-    network.stream(connections)
 
-    for i in range(0, 100):
+    network_latency = Network('../resources/nodes.json')
+    network_latency.connect()
+    network_latency.weighted_path = df
+    network_latency.update_routing_space(None)
+
+    print('Stream with label=snr')
+    network_latency.stream(connections, 'snr')
+
+    '''for i in range(0, 100):
         y = json.dumps(connections[i].__dict__)
-        print(y)
-
+        # print(y)
+    '''
 
     # plot the distribution of all the latencies
-    latency_connections = [c.latency for c in connections]
+    latency_connections = [c.latency*1e3 for c in connections]
     plt.figure()
     plt.hist(latency_connections, label='Latency distribution')
     plt.title('Latency distribution')
+    plt.ylabel('Number of connections')
+    plt.xlabel('Latency [ms]')
     plt.show()
-    '''

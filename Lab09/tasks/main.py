@@ -1,13 +1,13 @@
 from Lab09.core.Info.SignalInformation import SignalInformation
 from Lab09.core.Elements.Network import Network
 from Lab09.core.Elements.Connection import Connection
+from Lab09.core.utils import network_initialization, get_random_connections, plot_snr_and_bit_rate
 
 import pandas as pd
-import csv
+import csv, copy
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rand
-import statistics as st
 
 if __name__ == '__main__':
 
@@ -49,28 +49,15 @@ if __name__ == '__main__':
 
     plt.figure()
     network_fixed_rate.draw()
-
-    # Creating dataframe from csv file
-    # df_ = pd.read_csv("../results/network_df.csv")
     network_fixed_rate.weighted_path = df
 
     # Create route space
     network_fixed_rate.update_routing_space(None)  # best_path = None => route space empty
     # print("Initial routing space for network with full switching matrices", network_with_full_switching_matrix.route_space)
 
-    # Creating 100 connections with signal_power equal to 1 and with input/output nodes randomly chosen
+    # Creating 100 connections with signal_power equal to 1 and with input/output nodes
+    # randomly chosen and defined in 'connectionsFile.csv'
     connections_fixed_rate = []
-    '''
-    nodes = 'ABCDEF'
-    for i in range(0, 100):
-        input_rand = rand.choice(nodes)
-        while True:
-            output_rand = rand.choice(nodes)
-            if input_rand != output_rand:
-                break
-        connections_full.append(Connection(input_rand, output_rand, 1e-3))
-    '''
-
     with open('../resources/connectionsFile.csv') as csv100ConnectionsFile:
         csvReader = csv.reader(csv100ConnectionsFile)
         for row in csvReader:
@@ -78,85 +65,28 @@ if __name__ == '__main__':
 
     # Saving 100 connections in a variable in order to create
     # a network with not full switching matrices considering the same connections
-    connections_shannon = connections_fixed_rate[:]
-    connections_flex_rate = connections_fixed_rate[:]
+    connections_shannon = copy.deepcopy(connections_fixed_rate[:])
+    connections_flex_rate = copy.deepcopy(connections_fixed_rate[:])
 
     #print('Stream with label=snr')
     network_fixed_rate.stream(connections_fixed_rate, 'snr')
 
-    # print('Printing route_space\n\n')
-    # print(network.route_space)
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Fixed', connections_fixed_rate)
 
-    # plot the distribution of all the snrs
-    snr_connections = [c.snr for c in connections_fixed_rate if c.bit_rate != 0]
-    plt.figure()
-    plt.hist(snr_connections, label='Snr distribution')
-    plt.title('SNR distribution with Fixed rate')
-    plt.xlabel('SNR [dB]')
-    plt.ylabel('Connections')
-    plt.show()
+    ''' Considering the flex-rate transceiver strategy '''
 
-    bit_rate_connections = [c.bit_rate for c in connections_fixed_rate if c.bit_rate != 0]
-    plt.figure()
-    plt.hist(bit_rate_connections, label='Bit rate histogram')
-    plt.title('Bit rate of accepted connections - Fixed rate')
-    plt.xlabel('bit rate [bps]')
-    plt.ylabel('Connections')
-    plt.show()
-    print("Average bit rate for fixed rate", st.mean(bit_rate_connections))
-    print("Total capacity", sum(bit_rate_connections))
+    # network_initialization() method calls the Network constructor, connect() method,
+    # update_routing_space() method to restore the network and the stream() method with label='snr' '''
+    network_flex_rate = network_initialization('../resources/nodes_full_flex_rate.json', df, connections_flex_rate)
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Flex', connections_flex_rate)
 
-    # Shannon
-    network_shannon = Network('../resources/nodes_full_shannon.json')
-    network_shannon.connect()
-    network_shannon.weighted_path = df
-    network_shannon.update_routing_space(None)  # Restore routing space
+    '''Considering the maximum theoretical Shannon rate'''
+    # network_initialization() method calls the Network constructor, connect() method,
+    # update_routing_space() method to restore the network and the stream() method with label='snr' '''
+    network_shannon = network_initialization('../resources/nodes_full_shannon.json', df, connections_shannon)
 
-    #print('Stream with label=snr')
-    network_shannon.stream(connections_shannon, 'snr')
-
-    # plot the distribution of all the snrs
-    snr_connections = [c.snr for c in connections_shannon]
-    plt.figure()
-    plt.hist(snr_connections, label='Snr distribution')
-    plt.title('SNR distribution with Shannon rate')
-    plt.xlabel('SNR [dB]')
-    plt.ylabel('Connections')
-    plt.show()
-    bit_rate_connections = [c.bit_rate for c in connections_shannon if c.bit_rate!=0]
-    plt.figure()
-    plt.hist(bit_rate_connections, label='Bit rate histogram')
-    plt.title('Bit rate of accepted connections - Shannon rate')
-    plt.xlabel('bit rate [bps]')
-    plt.ylabel('Connections')
-    plt.show()
-    print("Average bit rate for Shannon", st.mean(bit_rate_connections))
-    print("Total capacity", sum(bit_rate_connections))
-
-
-    network_flex_rate = Network('../resources/nodes_full_flex_rate.json')
-    network_flex_rate.connect()
-    network_flex_rate.weighted_path = df
-    network_flex_rate.update_routing_space(None)  # Restore routing space
-
-    #print('Stream with label=snr')
-    network_flex_rate.stream(connections_flex_rate, 'snr')
-
-    # plot the distribution of all the snrs
-    snr_connections = [c.snr for c in connections_flex_rate]
-    plt.figure()
-    plt.hist(snr_connections, label='Snr distribution')
-    plt.title('SNR distribution with Flex rate')
-    plt.xlabel('SNR [dB]')
-    plt.ylabel('Connections')
-    plt.show()
-    bit_rate_connections = [c.bit_rate for c in connections_flex_rate if c.bit_rate!=0]
-    plt.figure()
-    plt.hist(bit_rate_connections, label='Bit rate histogram')
-    plt.title('Bit rate of accepted connections - Flex rate')
-    plt.xlabel('bit rate [bps]')
-    plt.ylabel('Connections')
-    plt.show()
-    print("Average bit rate for flex rate", st.mean(bit_rate_connections))
-    print("Total capacity", sum(bit_rate_connections))
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Shannon', connections_shannon)
 

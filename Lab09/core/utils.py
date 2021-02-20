@@ -2,8 +2,8 @@ import math
 
 from matplotlib.offsetbox import AnchoredText
 
-from Lab08.core.Elements.Network import Network
-from Lab08.core.Elements.Connection import Connection
+from Lab09.core.Elements.Network import Network
+from Lab09.core.Elements.Connection import Connection
 import random as rand
 import matplotlib.pyplot as plt
 import statistics as st

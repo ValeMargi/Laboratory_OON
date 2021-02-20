@@ -3,14 +3,16 @@ from Lab07.core.Elements.Network import Network
 from Lab07.core.Elements.Connection import Connection
 
 import pandas as pd
-import csv
+import csv, copy
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rand
 
 if __name__ == '__main__':
 
-    network_with_full_switching_matrix = Network('../resources/nodes_full.json')  # '../resources/nodes_full.json'
+    ''' Network with all full switching matrices, so the lightpath can travel
+     from and to any line connected to the node except going backwards on the same line'''
+    network_with_full_switching_matrix = Network('../resources/nodes_full.json')
     network_with_full_switching_matrix.connect()
     node_labels = network_with_full_switching_matrix.nodes.keys()
     pairs = []
@@ -48,14 +50,10 @@ if __name__ == '__main__':
 
     plt.figure()
     network_with_full_switching_matrix.draw()
-
-    # Creating dataframe from csv file
-    # df_ = pd.read_csv("../results/network_df.csv")
     network_with_full_switching_matrix.weighted_path = df
 
     # Create route space
     network_with_full_switching_matrix.update_routing_space(None)  # best_path = None => route space empty
-    # print("Initial routing space for network with full switching matrices", network_with_full_switching_matrix.route_space)
 
     # Creating 100 connections with signal_power equal to 1 and with input/output nodes randomly chosen
     connections_full = []
@@ -69,7 +67,6 @@ if __name__ == '__main__':
                 break
         connections_full.append(Connection(input_rand, output_rand, 1e-3))
     '''
-
     with open('../resources/connectionsFile.csv') as csv100ConnectionsFile:
         csvReader = csv.reader(csv100ConnectionsFile)
         for row in csvReader:
@@ -77,14 +74,10 @@ if __name__ == '__main__':
 
     # Saving 100 connections in a variable in order to create
     # a network with not full switching matrices considering the same connections
-    connections_not_full = connections_full[:]
+    connections_not_full = copy.deepcopy(connections_full[:])
 
     pd.DataFrame(connections_full).to_csv(r'../results/connections_randomly.csv', index=False)
-    print('Stream with label=snr')
     network_with_full_switching_matrix.stream(connections_full, 'snr')
-
-    # print('Printing route_space\n\n')
-    # print(network.route_space)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections_full]
@@ -95,18 +88,11 @@ if __name__ == '__main__':
     plt.ylabel('Number of connections')
     plt.show()
 
-    ''' Printing the connections
-        for i in range(0, 100):
-            y = json.dumps(connections[i].__dict__)
-            print(y)
-    '''
-
+    ''' Network with not full switching matrices'''
     network_not_full = Network('../resources/nodes_not_full.json')
     network_not_full.connect()
     network_not_full.weighted_path = df
     network_not_full.update_routing_space(None)  # Restore routing space
-
-    print('Stream with label=snr')
     network_not_full.stream(connections_not_full, 'snr')
 
     # plot the distribution of all the snrs
@@ -116,6 +102,5 @@ if __name__ == '__main__':
     plt.title('SNR distribution with not full switching matrices')
     plt.xlabel('SNR [dB]')
     plt.ylabel('Number of connections')
-    #plt.xticks([1, 10, 20, 30, 40,50])
     plt.show()
 

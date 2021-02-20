@@ -37,21 +37,21 @@ class Node(object):
     def switching_matrix(self, switching_matrix):
         self._switching_matrix = switching_matrix
 
-    def propagate(self, lighpath, previous_node):
-        path = lighpath.path
+    def propagate(self, lightpath, previous_node):
+        path = lightpath.path
         if len(path) > 1:
             line_label = path[:2]
-            if type(lighpath) is Lightpath:
+            if type(lightpath) is Lightpath:
                 if previous_node is not None:
                     channels = self.switching_matrix[previous_node][line_label[1]]
-                    channels[lighpath.channel] = 0
-                    # Commentare queste righe per considerare le switching matrices statiche
-                    if lighpath.channel != 9:
-                        channels[lighpath.channel + 1] = 0
-                    if lighpath.channel != 0:
-                        channels[lighpath.channel - 1] = 0
+                    channels[lightpath.channel] = 0
+                    # Comment to consider static switching matrices
+                    if lightpath.channel != 9:
+                        channels[lightpath.channel + 1] = 0
+                    if lightpath.channel != 0:
+                        channels[lightpath.channel - 1] = 0
 
             line = self.successive[line_label]
-            lighpath.next()
-            lighpath = line.propagate(lighpath)
-        return lighpath
+            lightpath.next()
+            lightpath = line.propagate(lightpath)
+        return lightpath

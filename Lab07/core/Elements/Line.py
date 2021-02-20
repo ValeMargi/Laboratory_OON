@@ -9,7 +9,7 @@ class Line(object):
         self._label = line_dict['label']
         self._length = line_dict['length']
         self._successive = {}
-        self._state = np.ones(n_channel, np.int8) #Free
+        self._state = np.ones(n_channel, np.int8) # 1:Free
 
     @property
     def label(self):

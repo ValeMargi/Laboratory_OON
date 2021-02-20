@@ -187,7 +187,7 @@ class Network(object):
 
     def update_routing_space(self, best_path):
         if best_path is not None:  # routing space not empty
-            # Aggiorno il primo arco del path in esame
+            # Updating first line in the path
             current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
             first_line = self.lines[best_path[0] + best_path[3]]
             self.route_space.at[current_index, 'channels'] = first_line.state
@@ -202,8 +202,7 @@ class Network(object):
                 result = np.multiply(result, line.state)
                 result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]], result)
 
-                # Aggiorno le entry nel route space corrispondenti ai singoli archi presenti nel path
-                # solo se il path in esame è il path aggiornato nel metodo stream()
+                # Updating each single line present in the the path after stream() method
                 if best_path is not None and path == best_path:  # routing space not empty
                     current_index = self.route_space[self.route_space['path'] == path[node1:node_i + 1]].index.values[0]
                     self.route_space.at[current_index, 'channels'] = line.state
@@ -215,7 +214,6 @@ class Network(object):
             else:
                 current_index = self.route_space[self.route_space['path'] == path].index.values[0]
                 self.route_space.at[current_index, 'channels'] = result
-        # print(self.route_space)
 
     def restore_network(self):
         self.route_space = self.route_space[0:0]
@@ -227,7 +225,6 @@ class Network(object):
 
         for line_label in lines_dict:
             line = lines_dict[line_label]
-            #print(line.state)
             line.state = np.ones(n_channel, np.int8)  # channel free
 
         self.update_routing_space(None)

@@ -4,9 +4,10 @@ from Lab08.core.Elements.Line import Line
 from Lab08.core.Info.Lightpath import Lightpath
 import json
 import numpy as np
+import copy
 import matplotlib.pyplot as plt
 from scipy.special import erfcinv as erfcinv
-import copy
+
 
 n_channel = 10
 ber_t = 1e-3

@@ -1,5 +1,6 @@
 from Lab10.core.Info.SignalInformation import SignalInformation
 from Lab10.core.Elements.Network import Network
+from Lab10.core.utils import network_initialization, get_random_connections, plot_snr_and_bit_rate,plot_traffic_matrix, traffic_matrix_initialization
 
 import pandas as pd
 import numpy as np
@@ -9,8 +10,8 @@ import copy
 from math import inf
 
 BIT_RATE_100G = 100e9
-M = 8  # Full network saturatuion with fixed rate
-# M=32 Full network saturatuion with shannon
+M = 8  # M=8 Full network saturatuion with fixed rate
+#M=32   # M=32 Full network saturatuion with shannon
 P_BASE = 1e-3
 
 if __name__ == '__main__':
@@ -47,189 +48,53 @@ if __name__ == '__main__':
 
     plt.figure()
     network_fixed_rate.draw()
-
-    # Creating dataframe from csv file
-    # df_ = pd.read_csv("../results/network_df.csv")
     network_fixed_rate.weighted_path = df
-
     # Create route space
     network_fixed_rate.update_routing_space(None)  # best_path = None => route space empty
 
-    node_number = len(network_fixed_rate.nodes)
-    traffic_matrix = {}
     #  Populate traffic matrix
-    for node in network_fixed_rate.nodes.keys():
-        traffic_matrix[node] = {}
-        for node_ in network_fixed_rate.nodes.keys():
-            if node != node_:
-                traffic_matrix[node][node_] = BIT_RATE_100G * M
-            else:
-                traffic_matrix[node][node_] = inf
-
+    traffic_matrix = traffic_matrix_initialization(network_fixed_rate)
+    node_number = len(network_fixed_rate.nodes)
     completed_connections = node_number * node_number - node_number  # number of all possible connections
     connections = []
     # while there are still some possible connections to satisfy, the request_generation_traffic_matrix() method il call
     while completed_connections > 0:
         completed_connections -= network_fixed_rate.request_generation_traffic_matrix(traffic_matrix, connections,P_BASE)
-
-    # plot the distribution of all the snrs
-    snr_connections = [c.snr for c in connections if c.bit_rate != 0]
-    plt.figure()
-    plt.hist(snr_connections, label='Snr distribution')
-    plt.title('SNR distribution with Fixed rate')
-    plt.xlabel('SNR [dB]')
-    plt.ylabel('Number of connections')
-    plt.show()
-
-    bit_rate_connections = [c.bit_rate for c in connections if c.bit_rate != 0]
-    plt.figure()
-    plt.hist(bit_rate_connections, label='Bit rate histogram')
-    plt.title('Bit rate of accepted connections - Fixed rate')
-    plt.xlabel('bit rate [bps]')
-    plt.ylabel('Number of connections')
-    plt.show()
-    print("Average bit rate for fixed rate", st.mean(bit_rate_connections))
-    print("Total capacity", sum(bit_rate_connections))
-
-    a = df.from_dict(traffic_matrix).to_numpy(dtype=float, na_value=None).astype(float)
-    fig, ax = plt.subplots()
-
-    for i in range(df.from_dict(traffic_matrix).shape[0]):
-        for j in range(df.from_dict(traffic_matrix).shape[1]):
-            text = ax.text(j, i, a[i, j],
-                           ha="center", va="center", color="w")
-    x_labels = ['A', 'B', 'C', 'D', 'E', 'F']
-    y_labels = ['A', 'B', 'C', 'D', 'E', 'F']
-    # Create dummy x values, with a value for every label entry
-    x = np.r_[:len(x_labels)]
-    y = np.r_[:len(y_labels)]
-    # Change the xticks and yticks as desired
-    plt.xticks(x, x_labels)
-    plt.yticks(y, y_labels)
-    cmap = plt.cm.jet
-    cmap = copy.copy(plt.cm.get_cmap("jet"))
-    cmap.set_bad('orange', 1.)
-    ax.imshow(a, interpolation='nearest', cmap=cmap)
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Fixed', connections)
+    # plot traffic matrix
+    plot_traffic_matrix(traffic_matrix, 'Fixed', M)
 
 
-    network_flex = Network('../resources/nodes_full_flex_rate.json')
-    network_flex.connect()
-    network_flex.weighted_path = df
-    network_flex.update_routing_space(None)  # Restore routing space
-
-    node_number = len(network_flex.nodes)
-    traffic_matrix = {}
-    for node in network_flex.nodes.keys():
-        traffic_matrix[node] = {}
-        for node_ in network_flex.nodes.keys():
-            if node != node_:
-                traffic_matrix[node][node_] = BIT_RATE_100G * M
-            else:
-                traffic_matrix[node][node_] = inf
-
-
+    ''' Considering the flex-rate transceiver strategy '''
+    # network_initialization() method calls the Network constructor, connect() method,
+    # update_routing_space() method to restore the network
+    network_flex_rate = network_initialization('../resources/nodes_full_flex_rate.json', df, connections)
+    #  Populate traffic matrix
+    traffic_matrix = traffic_matrix_initialization(network_flex_rate)
+    node_number = len(network_flex_rate.nodes)
     completed_connections = node_number * node_number - node_number
     connections = []
     while completed_connections > 0:
-        completed_connections -= network_flex.request_generation_traffic_matrix(traffic_matrix, connections, P_BASE)
+        completed_connections -= network_flex_rate.request_generation_traffic_matrix(traffic_matrix, connections, P_BASE)
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Flex', connections)
+    # plot traffic matrix
+    plot_traffic_matrix(traffic_matrix, 'Flex', M)
 
-    # plot the distribution of all the snrs
-    snr_connections = [c.snr for c in connections if c.bit_rate != 0]
-    plt.figure()
-    plt.hist(snr_connections, label='Snr distribution')
-    plt.title('SNR distribution with Flex rate')
-    plt.xlabel('SNR [dB]')
-    plt.ylabel('Number of connections')
-    plt.show()
 
-    bit_rate_connections = [c.bit_rate for c in connections if c.bit_rate != 0]
-    plt.figure()
-    plt.hist(bit_rate_connections, label='Bit rate histogram')
-    plt.title('Bit rate of accepted connections - Flex rate')
-    plt.xlabel('bit rate [bps]')
-    plt.ylabel('Number of connections')
-    # plt.xticks([0e11, 0.02e11, 0.04e11, 0.06e11, 0.08e11, 0.1e11])
-    plt.show()
-    print("Average bit rate for flex rate", st.mean(bit_rate_connections))
-    print("Total capacity", sum(bit_rate_connections))
-
-    a = df.from_dict(traffic_matrix).to_numpy(dtype=float, na_value=None).astype(float)
-    fig, ax = plt.subplots()
-
-    for i in range(df.from_dict(traffic_matrix).shape[0]):
-        for j in range(df.from_dict(traffic_matrix).shape[1]):
-            text = ax.text(j, i, a[i, j],
-                           ha="center", va="center", color="w")
-    x_labels = ['A', 'B', 'C', 'D', 'E', 'F']
-    y_labels = ['A', 'B', 'C', 'D', 'E', 'F']
-    # Create dummy x values, with a value for every label entry
-    x = np.r_[:len(x_labels)]
-    y = np.r_[:len(y_labels)]
-    # Change the xticks and yticks as desired
-    plt.xticks(x, x_labels)
-    plt.yticks(y, y_labels)
-    cmap = plt.cm.jet
-    cmap = copy.copy(plt.cm.get_cmap("jet"))
-    cmap.set_bad('orange', 1.)
-    ax.imshow(a, interpolation='nearest', cmap=cmap)
-
-    # Shannon
-    network_shannon = Network('../resources/nodes_full_shannon.json')
-    network_shannon.connect()
-    network_shannon.weighted_path = df
-    network_shannon.update_routing_space(None)  # Restore routing space
-
+    '''Considering the maximum theoretical Shannon rate'''
+    # network_initialization() method calls the Network constructor, connect() method,
+    # update_routing_space() method to restore the network '''
+    network_shannon = network_initialization('../resources/nodes_full_shannon.json', df, connections)
+    #  Populate traffic matrix
+    traffic_matrix = traffic_matrix_initialization(network_shannon)
     node_number = len(network_shannon.nodes)
-    traffic_matrix = {}
-    for node in network_shannon.nodes.keys():
-        traffic_matrix[node] = {}
-        for node_ in network_shannon.nodes.keys():
-            if node != node_:
-                traffic_matrix[node][node_] = BIT_RATE_100G * M
-            else:
-                traffic_matrix[node][node_] = inf
-
     completed_connections = node_number * node_number - node_number  # number of all possible connections
     connections = []
     while completed_connections > 0:
         completed_connections -= network_shannon.request_generation_traffic_matrix(traffic_matrix, connections, P_BASE)
-
-    # plot the distribution of all the snrs
-    snr_connections = [c.snr for c in connections]
-    plt.figure()
-    plt.hist(snr_connections, label='Snr distribution')
-    plt.title('SNR distribution with Shannon')
-    plt.xlabel('SNR [dB]')
-    plt.ylabel('Number of connections')
-    plt.show()
-    bit_rate_connections = [c.bit_rate for c in connections if c.bit_rate != 0]
-    plt.figure()
-    plt.hist(bit_rate_connections, label='Bit rate histogram')
-    plt.title('Bit rate of accepted connections - Shannon')
-    plt.xlabel('bit rate [bps]')
-    plt.ylabel('Number of connections')
-    plt.show()
-    print("Average bit rate for shannon", st.mean(bit_rate_connections))
-    print("Total capacity", sum(bit_rate_connections))
-
-
-
-    a = df.from_dict(traffic_matrix).to_numpy(dtype=float, na_value=None).astype(float)
-    fig, ax = plt.subplots()
-
-    for i in range(df.from_dict(traffic_matrix).shape[0]):
-        for j in range(df.from_dict(traffic_matrix).shape[1]):
-            text = ax.text(j, i, a[i, j],
-                           ha="center", va="center", color="w")
-    x_labels = ['A', 'B', 'C', 'D', 'E', 'F']
-    y_labels = ['A', 'B', 'C', 'D', 'E', 'F']
-    # Create dummy x values, with a value for every label entry
-    x = np.r_[:len(x_labels)]
-    y = np.r_[:len(y_labels)]
-    # Change the xticks and yticks as desired
-    plt.xticks(x, x_labels)
-    plt.yticks(y, y_labels)
-    cmap = plt.cm.jet
-    cmap = copy.copy(plt.cm.get_cmap("jet"))
-    cmap.set_bad('orange', 1.)
-    ax.imshow(a, interpolation='nearest', cmap=cmap)
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Shannon', connections)
+    # plot traffic matrix
+    plot_traffic_matrix(traffic_matrix, 'Shannon', M)

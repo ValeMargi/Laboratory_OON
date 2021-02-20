@@ -301,11 +301,11 @@ class Network(object):
                 traffic_matrix[input_rand][output_rand] = 0
                 return 1  # decrement, capacity guaranteed
             else:
-                # Updating the remaining capability after having satisfied the capability for the current connections
+                # Updating the remaining capability after having satisfied the capability for the current connection
                 traffic_matrix[input_rand][output_rand] -= connection.bit_rate
                 return 0
         else:
             traffic_matrix[input_rand][output_rand] = inf
         # If is not possible to define a suitable path for the connection,
-        # we decrement the number of all possible connections by returning 1
+        # decrement the number of all possible connections by returning 1
         return 1  # decrement

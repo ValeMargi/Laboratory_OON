@@ -3,17 +3,18 @@ from Lab09.core.Info.Lightpath import Lightpath
 import numpy as np
 from math import ceil
 
-n_channel = 10
-g = 16  # dB
-nf = 3  # dB
-f = 193.414e12  # C-band center
-alpha_dB_km = 0.2  # dB/Km
-beta2 = 2.13e-26  # (m Hz^2)^-1
-gamma = 1.27e-3 # inv(WM)
-df = 50e9  # GHz
-Rs = 32e9  # GHz
-Pch_base = 1e-3
+n_channel = 10  # Number of channel
 Bn = 12.5e9  # Noise Bandwidth [GHz]
+G = 16   # Gain amplifier  [dB]
+NF = 3  # Noise Figure [dB]
+f = 193.414e12  # C-band center [Hz]
+alpha_dB_km = 0.2  # Fiber attenuation loss[dB/Km]
+beta2 = 2.13e-26  # chromatic dispersion factor (m Hz^2)^-1
+gamma = 1.27e-3  # inv(WM)
+df = 50e9  # WDM channel spacing [Hz]
+Rs = 32e9  # Symbol Rate [Hz]
+Pch_base = 1e-3  # Power base [W]
+
 
 class Line(object):
     def __init__(self, line_dict):
@@ -22,14 +23,13 @@ class Line(object):
         self._successive = {}
         self._state = np.ones(n_channel, np.int8)  # Free
         self._n_amplifiers = 0
-        self._gain = g
-        self._noise_figure = nf
+        self._gain = G
+        self._noise_figure = NF
         self._alfa = (alpha_dB_km / 1e3) / (20 * np.log10(np.exp(1)))
         self._beta2 = beta2
         self._gamma = gamma
         self._Leff = 1 / (2 * self.alfa)
         self._n_span = 0
-
 
     @property
     def label(self):
@@ -123,20 +123,18 @@ class Line(object):
         return signal_information
 
     def ase_generation(self):
-        #print("LEN: ", self.length)
-        self.n_amplifiers = (ceil(self.length / 80e3) -1)+2
+        # print("LEN: ", self.length)
+        self.n_amplifiers = (ceil(self.length / 80e3) - 1) + 2
         return self.n_amplifiers * (h * f * Bn * (10 ** (self.noise_figure / 10)) * ((10 ** (self.gain / 10)) - 1))
 
     def nli_generation(self, signal):
         nli = signal.signal_power ** 3 * self.eta_nli_generation() * self.n_span * Bn
-        #print("PATH signal: ", signal.path)
-        #print("N_SPAN: ", self.n_span, "Bn: ", Bn, "Pch_base: ", signal.signal_power)
-        #print("NLI: ", nli, "ETA: ", self.eta_nli_generation(), "ASE: ", self.ase_generation())
+        # print("PATH signal: ", signal.path)
+        # print("N_SPAN: ", self.n_span, "Bn: ", Bn, "Pch_base: ", signal.signal_power)
+        # print("NLI: ", nli, "ETA: ", self.eta_nli_generation(), "ASE: ", self.ase_generation())
         return nli
 
     def eta_nli_generation(self):
         return 16 / (27 * np.pi) * np.log(
             (np.pi ** 2) / 2 * self.beta2 * (Rs ** 2) / self.alfa * (n_channel ** (2 * Rs / df))) \
                * (self.alfa / self.beta2 * ((self.gamma ** 2) * (self.Leff ** 2) / (Rs ** 3)))
-
-

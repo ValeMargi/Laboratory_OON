@@ -7,7 +7,6 @@ from Lab09.core.Elements.Connection import Connection
 import random as rand
 import matplotlib.pyplot as plt
 import statistics as st
-from matplotlib.widgets import TextBox
 
 def truncate(number, decimals=0):
     """

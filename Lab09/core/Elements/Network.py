@@ -10,8 +10,8 @@ import copy
 
 n_channel = 10
 ber_t = 1e-3
-Rs = 32e9
-Bn = 12.5e9
+Rs = 32e9  # Symbol Rate [Hz]
+Bn = 12.5e9  # Noise Bandwidth [GHz]
 
 
 class Network(object):

@@ -179,6 +179,9 @@ class Network(object):
             else:
                 connection.snr = 0
                 connection.latency = -1  # None
+
+        # Saving route space into file
+        #self.route_space.to_csv(r'../results/route_space.csv', index=False)
         # Restore network
         self.restore_network()
 

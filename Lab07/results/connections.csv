@@ -1,4 +1,3 @@
-0
 <Connection input:B  output:F signal_power:0.001000 latency:0.0 snr:0.000000>
 <Connection input:A  output:B signal_power:0.001000 latency:0.0 snr:0.000000>
 <Connection input:A  output:E signal_power:0.001000 latency:0.0 snr:0.000000>

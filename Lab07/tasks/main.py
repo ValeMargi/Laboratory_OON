@@ -75,8 +75,6 @@ if __name__ == '__main__':
     # Saving 100 connections in a variable in order to create
     # a network with not full switching matrices considering the same connections
     connections_not_full = copy.deepcopy(connections_full[:])
-
-    pd.DataFrame(connections_full).to_csv(r'../results/connections_randomly.csv', index=False)
     network_with_full_switching_matrix.stream(connections_full, 'snr')
 
     # plot the distribution of all the snrs
@@ -87,6 +85,7 @@ if __name__ == '__main__':
     plt.xlabel('SNR [dB]')
     plt.ylabel('Number of connections')
     plt.show()
+
 
     ''' Network with not full switching matrices'''
     network_not_full = Network('../resources/nodes_not_full.json')

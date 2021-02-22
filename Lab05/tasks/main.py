@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rand
+import copy
 
 if __name__ == '__main__':
 
@@ -45,6 +46,7 @@ if __name__ == '__main__':
 
     # Saving network dataframe without occupied channel into csv file
     # df.to_csv(r'../results/network_df.csv', index=False)
+    # df.to_csv(r'../results/network_df.csv', index=False)
 
     plt.figure()
     network.draw()
@@ -65,12 +67,13 @@ if __name__ == '__main__':
             if input_rand != output_rand:
                 break
         connections.append(Connection(input_rand, output_rand, 1e-3))
+    connections_for_latency = copy.deepcopy(connections)
 
     #print('Stream with label=snr')
     network.stream(connections, 'snr')
 
-    print('Printing route_space\n\n')
-    print(network.route_space)
+    #print('Printing route_space\n\n')
+    #print(network.route_space)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections]
@@ -91,18 +94,15 @@ if __name__ == '__main__':
     network_latency.weighted_path = df
     network_latency.update_routing_space()
 
-    print('Stream with label=snr')
-    network_latency.stream(connections, 'snr')
     # Stream with label='latency'
-    network.stream(connections)
-
+    network_latency.stream(connections_for_latency)
     '''for i in range(0, 100):
         y = json.dumps(connections[i].__dict__)
         # print(y)
     '''
 
     # plot the distribution of all the latencies
-    latency_connections = [c.latency*1e3 for c in connections]
+    latency_connections = [c.latency*1e3 for c in connections_for_latency]
     plt.figure()
     plt.hist(latency_connections, label='Latency distribution')
     plt.title('Latency distribution')

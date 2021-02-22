@@ -162,17 +162,15 @@ class Network(object):
                 path_label = ''
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
-                print("**** Best path: ", best_path, " channel occupied: ", channel,"****\n")
+                #print("**** Best path: ", best_path, " channel occupied: ", channel, "****\n")
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
-                # DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
                 connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                 connection.latency = lightpath.latency
                 self.update_routing_space(best_path)  # 0= route space not empty
             else:
                 connection.snr = 0
                 connection.latency = -1  # None
-
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)
@@ -184,7 +182,7 @@ class Network(object):
                 {'path': path, 'channels': [1] * n_channel}, ignore_index=True, sort=None)
             # print(self.route_space)
         else:
-            # Aggiorno il primo arco del path in esame
+            # Updating first line of current best path
             current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
             first_line = self.lines[best_path[0] + best_path[3]]
             self.route_space.at[current_index, 'channels'] = first_line.state
@@ -199,11 +197,9 @@ class Network(object):
                     result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]],
                                          result)
 
-                    # Aggiorno le entry nel route space corrispondenti ai singoli archi presenti nel path
-                    # solo se il path in esame è il path aggiornato nel metodo stream()
+                    # Updating each single line present in the the path after stream() method
                     if best_path == path:
-                        current_index = \
-                        self.route_space[self.route_space['path'] == path[node1:node_i + 1]].index.values[0]
+                        current_index = self.route_space[self.route_space['path'] == path[node1:node_i + 1]].index.values[0]
                         self.route_space.at[current_index, 'channels'] = line.state
 
                     node1 = node_i  # for

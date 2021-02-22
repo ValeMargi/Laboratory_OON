@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rand
+import copy
 
 if __name__ == '__main__':
 
@@ -55,7 +56,7 @@ if __name__ == '__main__':
 
     # Create route space
     network.update_routing_space(None) # best_path = None => route space emoty
-    print("Route space initial", network.route_space)
+    #print("Route space initial", network.route_space)
 
     connections = []
     nodes = 'ABCDEF'
@@ -66,6 +67,7 @@ if __name__ == '__main__':
             if input_rand != output_rand:
                 break
         connections.append(Connection(input_rand, output_rand, 1e-3))
+    connections_for_latency = copy.deepcopy(connections)
 
     print('Stream with label=snr')
     network.stream(connections, 'snr')
@@ -92,8 +94,8 @@ if __name__ == '__main__':
     network_latency.weighted_path = df
     network_latency.update_routing_space(None)
 
-    print('Stream with label=snr')
-    network_latency.stream(connections, 'snr')
+    print('Stream with label=latency')
+    network_latency.stream(connections_for_latency)
 
     '''for i in range(0, 100):
         y = json.dumps(connections[i].__dict__)
@@ -101,7 +103,7 @@ if __name__ == '__main__':
     '''
 
     # plot the distribution of all the latencies
-    latency_connections = [c.latency*1e3 for c in connections]
+    latency_connections = [c.latency*1e3 for c in connections_for_latency]
     plt.figure()
     plt.hist(latency_connections, label='Latency distribution')
     plt.title('Latency distribution')

@@ -13,6 +13,7 @@ class Network(object):
         self._nodes = {}
         self._lines = {}
         self._weighted_path = pd.DataFrame()
+        # route_space attribute, for all the possible paths it describes the availability for each channel
         self._route_space = pd.DataFrame()
 
         paths = []
@@ -37,7 +38,6 @@ class Network(object):
         self._route_space['7'] = channel_7
         self._route_space['8'] = channel_8
         self._route_space['9'] = channel_9
-
 
         for node_label in node_json:
             # Create the node instance
@@ -140,18 +140,21 @@ class Network(object):
             my_df_filtered = my_df[(my_df['path'].str[0] == node_input) & (my_df['path'].str[-1] == node_output)]
             for i in my_df_filtered.values:
                 path = i[0]  # path
+                # Finding a free channel for the path
                 channel = self.channel_free(path)
                 if channel is not None:
+                    # i = tuple associated to the best_path found in the weighted_path dataframe,
+                    # i[0] = best_path string,
+                    # channel = channel occupied
                     return i, i[0], channel
         return None, None, None
 
     def channel_free(self, path):
         path_in_route_space = self.route_space[self.route_space['path'] == path]
         for i in range(10):
-            if path_in_route_space[str(i)].values[0] is None:
+            if path_in_route_space[str(i)].values[0] is None:  # checking if the channel is available
                 return i
         return None
-
 
     def find_best_latency(self, node_input, node_output):
         if node_input != node_output:
@@ -160,8 +163,12 @@ class Network(object):
             my_df_filtered = my_df[(my_df['path'].str[0] == node_input) & (my_df['path'].str[-1] == node_output)]
             for i in my_df_filtered.values:
                 path = i[0]
+                # Finding a free channel for the path
                 channel = self.channel_free(path)
                 if channel is not None:
+                    # i = tuple associated to the best_path found in the weighted_path dataframe,
+                    # i[0] = best_path string,
+                    # channel = channel occupied
                     return i, i[0], channel
         return None, None, None
 
@@ -178,25 +185,27 @@ class Network(object):
                     path_label += best_path[index]
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
-                #DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
-                for line_path_i in range(0, len(best_path)-1, 3):
-                    current_index = self.route_space[self.route_space['path'] == best_path[line_path_i:line_path_i+4]].index.values.astype(int)
+                # DEBUG: print("Noise :  ", lightpath.noise_power, path_label)
+                # Updating route_space in order to consider the channel occupancy for the best_path found
+                # considering each line of the best_path
+                for line_path_i in range(0, len(best_path) - 1, 3):
+                    current_index = self.route_space[self.route_space['path'] == best_path[line_path_i:line_path_i + 4]].index.values.astype(int)[0]
                     self.route_space.at[current_index, str(channel)] = 'occupied'
-                if len(best_path) >= 4:
-                    current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)
+                #Updating in the route_space the entire best_path if it is composed by more than one line
+                if len(best_path) > 4:
+                    current_index = self.route_space[self.route_space['path'] == best_path].index.values.astype(int)[0]
                     self.route_space.at[current_index, str(channel)] = 'occupied'
-                #print(self.route_space)
                 connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                 connection.latency = lightpath.latency
             else:
                 connection.snr = 0
-                connection.latency = -1 #None
-
+                connection.latency = -1  # None
 
     def snr_dB(self, signal_power, noise_power):
         return 10 * np.log10(signal_power / noise_power)
 
     def update_routing_space(self):
+        # Initializing route_space
         for path in self.weighted_path['path']:
             row_route_space = [
                 {'path': path, '0': None, '1': None, '2': None, '3': None, '4': None, '5': None, '6': None,
@@ -206,6 +215,3 @@ class Network(object):
                 self.route_space = new_df_route_space.copy()
             else:
                 self.route_space = self.route_space.append(new_df_route_space, ignore_index=True, sort=None)
-
-
-

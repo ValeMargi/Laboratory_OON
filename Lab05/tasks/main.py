@@ -46,18 +46,16 @@ if __name__ == '__main__':
 
     # Saving network dataframe without occupied channel into csv file
     # df.to_csv(r'../results/network_df.csv', index=False)
-    # df.to_csv(r'../results/network_df.csv', index=False)
+    # Creating dataframe from csv file
+    #df_ = pd.read_csv("../results/network_df.csv")
 
     plt.figure()
     network.draw()
-
-    # Creating dataframe from csv file
-    #df_ = pd.read_csv("../results/network_df.csv")
     network.weighted_path = df
-
     # Create route space
     network.update_routing_space()
 
+    # Creating 100 randomly connections
     connections = []
     nodes = 'ABCDEF'
     for i in range(0, 100):
@@ -69,13 +67,10 @@ if __name__ == '__main__':
         connections.append(Connection(input_rand, output_rand, 1e-3))
     connections_for_latency = copy.deepcopy(connections)
 
-    #print('Stream with label=snr')
+    # Stream with label=snr
     network.stream(connections, 'snr')
 
-    #print('Printing route_space\n\n')
-    #print(network.route_space)
-
-    # plot the distribution of all the snrs
+    # plot the distribution of all the SNRs
     snr_connections = [c.snr for c in connections]
     plt.figure()
     plt.hist(snr_connections, label='Snr distribution')

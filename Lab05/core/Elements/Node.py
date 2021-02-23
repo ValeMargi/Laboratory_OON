@@ -26,13 +26,13 @@ class Node(object):
     def successive(self, successive):
         self._successive = successive
 
-    def propagate(self, lighpath):
-        path = lighpath.path
+    def propagate(self, lightpath):
+        path = lightpath.path
         if len(path) > 1:
             line_label = path[:2]
             line = self.successive[line_label]
-            lighpath.next()
-            lighpath = line.propagate(lighpath)
-        return lighpath
+            lightpath.next()
+            lightpath = line.propagate(lightpath)
+        return lightpath
 
 

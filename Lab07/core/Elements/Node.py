@@ -44,8 +44,8 @@ class Node(object):
             if type(lightpath) is Lightpath:
                 if previous_node is not None:
                     channels = self.switching_matrix[previous_node][line_label[1]]
-                    channels[lightpath.channel] = 0
                     # Comment to consider static switching matrices
+                    channels[lightpath.channel] = 0
                     if lightpath.channel != 9:
                         channels[lightpath.channel + 1] = 0
                     if lightpath.channel != 0:

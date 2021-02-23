@@ -13,8 +13,6 @@ import copy
 from math import inf
 
 BIT_RATE_100G = 100e9
-M = 8
-
 
 def truncate(number, decimals=0):
     """
@@ -103,7 +101,7 @@ def plot_traffic_matrix(traffic_matrix, strategy, M):
     ax.imshow(a, interpolation='nearest', cmap=cmap)
 
 
-def traffic_matrix_initialization(network):
+def traffic_matrix_initialization(network, M):
     node_number = len(network.nodes)
     traffic_matrix = {}
     for node in network.nodes.keys():

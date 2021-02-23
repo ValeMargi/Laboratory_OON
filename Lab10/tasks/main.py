@@ -1,17 +1,19 @@
 from Lab10.core.Info.SignalInformation import SignalInformation
 from Lab10.core.Elements.Network import Network
+from Lab10.core.Elements.Connection import Connection
+
 from Lab10.core.utils import network_initialization, get_random_connections, plot_snr_and_bit_rate,plot_traffic_matrix, traffic_matrix_initialization
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import statistics as st
-import copy
+import copy, csv
 from math import inf
 
 BIT_RATE_100G = 100e9
-M = 8  # M=8 Full network saturatuion with fixed rate
-#M=32   # M=32 Full network saturatuion with shannon
+M = 8 # M=8 Full network saturation with fixed rate,  # M=32 Full network saturation with shannon
+
 P_BASE = 1e-3
 
 if __name__ == '__main__':
@@ -53,7 +55,7 @@ if __name__ == '__main__':
     network_fixed_rate.update_routing_space(None)  # best_path = None => route space empty
 
     #  Populate traffic matrix
-    traffic_matrix = traffic_matrix_initialization(network_fixed_rate)
+    traffic_matrix = traffic_matrix_initialization(network_fixed_rate, M)
     node_number = len(network_fixed_rate.nodes)
     completed_connections = node_number * node_number - node_number  # number of all possible connections
     connections = []
@@ -71,7 +73,7 @@ if __name__ == '__main__':
     # update_routing_space() method to restore the network
     network_flex_rate = network_initialization('../resources/nodes_full_flex_rate.json', df, connections)
     #  Populate traffic matrix
-    traffic_matrix = traffic_matrix_initialization(network_flex_rate)
+    traffic_matrix = traffic_matrix_initialization(network_flex_rate, M)
     node_number = len(network_flex_rate.nodes)
     completed_connections = node_number * node_number - node_number
     connections = []
@@ -88,7 +90,7 @@ if __name__ == '__main__':
     # update_routing_space() method to restore the network '''
     network_shannon = network_initialization('../resources/nodes_full_shannon.json', df, connections)
     #  Populate traffic matrix
-    traffic_matrix = traffic_matrix_initialization(network_shannon)
+    traffic_matrix = traffic_matrix_initialization(network_shannon, M)
     node_number = len(network_shannon.nodes)
     completed_connections = node_number * node_number - node_number  # number of all possible connections
     connections = []
@@ -98,3 +100,40 @@ if __name__ == '__main__':
     plot_snr_and_bit_rate('Shannon', connections)
     # plot traffic matrix
     plot_traffic_matrix(traffic_matrix, 'Shannon', M)
+
+
+
+    '''
+    connections_100_fixed = []
+    with open('../resources/connectionsFile.csv') as csv100ConnectionsFile:
+        csvReader = csv.reader(csv100ConnectionsFile)
+        for row in csvReader:
+            connections_100_fixed.append(Connection(row[0], row[1], float(row[2])))
+    connections_100_flex= copy.deepcopy(connections_100_fixed[:])
+    connections_100_shannon = copy.deepcopy(connections_100_fixed[:])
+
+    # Considering the 100 randomly choosen connections  with fixed
+    # network_initialization() method calls the Network constructor, connect() method,
+    # update_routing_space() method to restore the network
+    network_100_fixed_rate = network_initialization('../resources/nodes_full_fixed_rate.json', df, connections_100_fixed)
+    network_100_fixed_rate.stream(connections_100_fixed, 'snr')
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Fixed', connections_100_fixed)
+
+    # Considering the 100 randomly choosen connections  with fixed
+    # network_initialization() method calls the Network constructor, connect() method,
+    # update_routing_space() method to restore the network
+    network_100_flex_rate = network_initialization('../resources/nodes_full_flex_rate.json', df, connections_100_flex)
+    network_100_flex_rate.stream(connections_100_flex, 'snr')
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Flex', connections_100_flex)
+
+
+    # Considering the 100 randomly choosen connections  with Shannon
+    # network_initialization() method calls the Network constructor, connect() method,
+    # update_routing_space() method to restore the network
+    network_100_shannon_rate = network_initialization('../resources/nodes_full_shannon.json', df, connections_100_shannon)
+    network_100_shannon_rate.stream(connections_100_shannon, 'snr')
+    # plot the distribution of all the snrs and bit rate
+    plot_snr_and_bit_rate('Shannon', connections_100_shannon)
+    '''

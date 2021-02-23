@@ -47,7 +47,7 @@ class Line(object):
 
         if type(signal_information) is Lightpath:
             if signal_information.channel is not None:
-                self.state[signal_information.channel] = 0 #'occupied'
+                self.state[signal_information.channel] = 0  # channel 'occupied'
 
         # Update latency
         latency = self.latency_generation()

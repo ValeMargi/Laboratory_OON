@@ -16,6 +16,7 @@ class Network(object):
         self._lines = {}
         self._weighted_path = pd.DataFrame()
         columns_name = ["path", "channels"]
+        # route_space attribute, for all the possible paths it describes the availability for each channel
         self._route_space = pd.DataFrame(columns=columns_name)
 
         for node_label in node_json:
@@ -103,6 +104,8 @@ class Network(object):
             node = nodes_dict[node_label]
             node.switching_matrix = {}
             for connected_node in node.connected_nodes:
+                # Initialing switching matrix to 0 the lists for couples of nodes with
+                # the same names (e.g. B-B, C-C, D-D) and to 1 the others.
                 node.switching_matrix[connected_node] = {}
                 for connected_node_i in node.connected_nodes:
                     if connected_node_i == connected_node:
@@ -127,15 +130,19 @@ class Network(object):
             my_df_filtered = my_df[(my_df['path'].str[0] == node_input) & (my_df['path'].str[-1] == node_output)]
             for i in my_df_filtered.values:
                 path = i[0]  # path
+                # Finding a free channel for the path
                 channel = self.channel_free(path)
                 if channel is not None:
+                    # i = tuple associated to the best_path found in the weighted_path dataframe,
+                    # i[0] = best_path string,
+                    # channel = channel occupied
                     return i, i[0], channel
         return None, None, None
 
     def channel_free(self, path):
         path_in_route_space = self.route_space[self.route_space['path'] == path]
         for i in range(n_channel):
-            if path_in_route_space['channels'].values[0][i] == 1:
+            if path_in_route_space['channels'].values[0][i] == 1:  # checking if the channel is available
                 return i
         return None
 
@@ -146,8 +153,12 @@ class Network(object):
             my_df_filtered = my_df[(my_df['path'].str[0] == node_input) & (my_df['path'].str[-1] == node_output)]
             for i in my_df_filtered.values:
                 path = i[0]
+                # Finding a free channel for the path
                 channel = self.channel_free(path)
                 if channel is not None:
+                    # i = tuple associated to the best_path found in the weighted_path dataframe,
+                    # i[0] = best_path string,
+                    # channel = channel occupied
                     return i, i[0], channel
         return None, None, None
 
@@ -162,11 +173,12 @@ class Network(object):
                 path_label = ''
                 for index in range(0, len(best_path), 3):
                     path_label += best_path[index]
-                #print("**** Best path: ", best_path, " channel occupied: ", channel, "****\n")
+                # print("**** Best path: ", best_path, " channel occupied: ", channel, "****\n")
                 lightpath = Lightpath(connection.signal_power, path_label, channel)
                 self.propagate(lightpath)
                 connection.snr = self.snr_dB(lightpath.signal_power, lightpath.noise_power)
                 connection.latency = lightpath.latency
+                # Updating route_space in order to consider the channel occupancy for the best_path found
                 self.update_routing_space(best_path)  # 0= route space not empty
             else:
                 connection.snr = 0
@@ -180,13 +192,10 @@ class Network(object):
             # first initialization of the route space
             for path in self.weighted_path['path']: self.route_space = self.route_space.append(
                 {'path': path, 'channels': [1] * n_channel}, ignore_index=True, sort=None)
-            # print(self.route_space)
         else:
-            # Updating first line of current best path
-            current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
-            first_line = self.lines[best_path[0] + best_path[3]]
-            self.route_space.at[current_index, 'channels'] = first_line.state
-
+            # Updating all paths in the route_space performing for each path the multiplication of all the state line
+            # arrays and all switching matrix array that compose the path (excluding the switching matrix of the
+            # initial and last nodes).
             for path in self.route_space['path']:
                 node1 = 3
                 first_line = self.lines[path[0] + path[node1]]
@@ -196,14 +205,8 @@ class Network(object):
                     result = np.multiply(result, line.state)
                     result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]],
                                          result)
-
-                    # Updating each single line present in the the path after stream() method
-                    if best_path == path:
-                        current_index = self.route_space[self.route_space['path'] == path[node1:node_i + 1]].index.values[0]
-                        self.route_space.at[current_index, 'channels'] = line.state
-
                     node1 = node_i  # for
 
                 current_index = self.route_space[self.route_space['path'] == path].index.values[0]
+                #Updating in the route_space the entire path if it is composed by more than one line
                 self.route_space.at[current_index, 'channels'] = result
-            # print(self.route_space)

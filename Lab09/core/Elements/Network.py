@@ -202,12 +202,6 @@ class Network(object):
         return 10 * np.log10(signal_power / noise_power)
 
     def update_routing_space(self, best_path):
-        if best_path is not None:  # routing space not empty
-            # Aggiorno il primo arco del path in esame
-            current_index = self.route_space[self.route_space['path'] == best_path].index.values[0]
-            first_line = self.lines[best_path[0] + best_path[3]]
-            self.route_space.at[current_index, 'channels'] = first_line.state
-
         # Updating routing space for both initialization and after stream() method
         for path in self.weighted_path['path']:
             node1 = 3
@@ -217,13 +211,6 @@ class Network(object):
                 line = self.lines[path[node1] + path[node_i]]
                 result = np.multiply(result, line.state)
                 result = np.multiply(self.nodes[path[node1]].switching_matrix[path[node1 - 3]][path[node_i]], result)
-
-                # Aggiorno le entry nel route space corrispondenti ai singoli archi presenti nel path
-                # solo se il path in esame è il path aggiornato nel metodo stream()
-                if best_path is not None and path == best_path:  # routing space not empty
-                    current_index = self.route_space[self.route_space['path'] == path[node1:node_i + 1]].index.values[0]
-                    self.route_space.at[current_index, 'channels'] = line.state
-
                 node1 = node_i  # for
             if best_path is None:  # routing space empty
                 self.route_space = self.route_space.append({'path': path, 'channels': result}, ignore_index=True,
@@ -231,7 +218,6 @@ class Network(object):
             else:
                 current_index = self.route_space[self.route_space['path'] == path].index.values[0]
                 self.route_space.at[current_index, 'channels'] = result
-        # print(self.route_space)
 
     def restore_network(self):
         self.route_space = self.route_space[0:0]

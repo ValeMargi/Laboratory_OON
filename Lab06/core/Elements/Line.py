@@ -11,7 +11,7 @@ class Line(object):
         self._length = line_dict['length']
         self._successive = {}
         self._state = []
-        self._state = np.ones(n_channel, np.int8) #Free
+        self._state = np.ones(n_channel, np.int8)  # Free
 
     @property
     def label(self):
@@ -47,9 +47,9 @@ class Line(object):
 
     def propagate(self, signal_information):
 
-        if( type(signal_information) is Lightpath):
+        if type(signal_information) is Lightpath:
             if signal_information.channel is not None:
-                self.state[signal_information.channel] = 0 #'occupied'
+                self.state[signal_information.channel] = 0  # channel 'occupied'
 
         # Update latency
         latency = self.latency_generation()

@@ -16,7 +16,6 @@ if __name__ == '__main__':
     pairs = []
     for label1 in node_labels:
         for label2 in node_labels:
-
             if label1 != label2:
                 pairs.append(label1 + label2)
             columns = ['path', 'latency', 'noise', 'snr']
@@ -46,17 +45,15 @@ if __name__ == '__main__':
 
     # Saving network dataframe without occupied channel into csv file
     # df.to_csv(r'../results/network_df.csv', index=False)
+    # Creating dataframe from csv file
+    #df_ = pd.read_csv("../results/network_df.csv")
 
     plt.figure()
     network.draw()
-
-    # Creating dataframe from csv file
-    #df_ = pd.read_csv("../results/network_df.csv")
     network.weighted_path = df
 
     # Create route space
-    network.update_routing_space(None) # best_path = None => route space emoty
-    #print("Route space initial", network.route_space)
+    network.update_routing_space(None) # best_path = None => route space empty
 
     connections = []
     nodes = 'ABCDEF'
@@ -69,11 +66,8 @@ if __name__ == '__main__':
         connections.append(Connection(input_rand, output_rand, 1e-3))
     connections_for_latency = copy.deepcopy(connections)
 
-    print('Stream with label=snr')
+    # Stream with label=snr
     network.stream(connections, 'snr')
-
-    #print('Printing route_space after stream with 100 connections label=snr\n\n')
-    #print(network.route_space)
 
     # plot the distribution of all the snrs
     snr_connections = [c.snr for c in connections]
@@ -94,7 +88,7 @@ if __name__ == '__main__':
     network_latency.weighted_path = df
     network_latency.update_routing_space(None)
 
-    print('Stream with label=latency')
+    # Stream with label=latency
     network_latency.stream(connections_for_latency)
 
     '''for i in range(0, 100):

@@ -75,6 +75,7 @@ if __name__ == '__main__':
     # Saving 100 connections in a variable in order to create
     # a network with not full switching matrices considering the same connections
     connections_not_full = copy.deepcopy(connections_full[:])
+    print("Full switching matrix")
     network_with_full_switching_matrix.stream(connections_full, 'snr')
 
     # plot the distribution of all the snrs
@@ -92,6 +93,7 @@ if __name__ == '__main__':
     network_not_full.connect()
     network_not_full.weighted_path = df
     network_not_full.update_routing_space(None)  # Restore routing space
+    print("Not Full switching matrix")
     network_not_full.stream(connections_not_full, 'snr')
 
     # plot the distribution of all the snrs

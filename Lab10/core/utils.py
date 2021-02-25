@@ -112,3 +112,22 @@ def traffic_matrix_initialization(network, M):
             else:
                 traffic_matrix[node][node_] = inf
     return traffic_matrix
+
+def wavelength_congestion(network, M, strategy):
+    # Wavelength congestion flex
+    occupancy = []
+    for label in network.lines.keys():
+        coutner = 0
+        line_state = network.lines[label].state
+        for c in (line_state):
+            coutner += c
+        occupancy.append((1 - (coutner / len(line_state))) * 100)
+        print(label + " " + str((1 - (coutner / len(line_state))) * 100))
+    plt.figure()
+    plt.scatter(list(network.lines.keys()), occupancy, label='Wavelength congestion')
+    plt.xlabel('Lines')
+    plt.ylabel('Congestion [%]')
+    plt.title('Wavelength congestion '+strategy+' rate with M = ' + str(M))
+    plt.xticks(list(network.lines.keys()))
+    plt.grid(True, linewidth=0.5, linestyle='--')
+    plt.show()

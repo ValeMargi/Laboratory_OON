@@ -183,6 +183,24 @@ class Network(object):
 
         # Saving route space into file
         #self.route_space.to_csv(r'../results/route_space.csv', index=False)
+        # Wavelength congestion
+        occupancy = []
+        for label in self.lines.keys():
+            coutner = 0
+            line_state = self.lines[label].state
+            for c in (line_state):
+                coutner += c
+            occupancy.append((1 - (coutner / len(line_state))) * 100)
+            print(label + " " + str((1 - (coutner / len(line_state))) * 100))
+        plt.figure()
+        plt.scatter(list(self.lines.keys()), occupancy, label='Wavelength congestion')
+        plt.xlabel('Lines')
+        plt.ylabel('Congestion [%]')
+        plt.title('Wavelength congestion')
+        plt.xticks(list(self.lines.keys()))
+        plt.grid(True, linewidth=0.5, linestyle='--')
+        plt.show()
+
         # Restore network
         self.restore_network()
 

@@ -2,7 +2,7 @@ from Lab10.core.Info.SignalInformation import SignalInformation
 from Lab10.core.Elements.Network import Network
 from Lab10.core.Elements.Connection import Connection
 
-from Lab10.core.utils import network_initialization, get_random_connections, plot_snr_and_bit_rate,plot_traffic_matrix, traffic_matrix_initialization
+from Lab10.core.utils import network_initialization, get_random_connections, plot_snr_and_bit_rate,plot_traffic_matrix, traffic_matrix_initialization,wavelength_congestion
 
 import pandas as pd
 import numpy as np
@@ -12,8 +12,7 @@ import copy, csv
 from math import inf
 
 BIT_RATE_100G = 100e9
-M = 8 # M=8 Full network saturation with fixed rate,  # M=32 Full network saturation with shannon
-
+M = 8
 P_BASE = 1e-3
 
 if __name__ == '__main__':
@@ -67,6 +66,8 @@ if __name__ == '__main__':
     # plot traffic matrix
     plot_traffic_matrix(traffic_matrix, 'Fixed', M)
 
+    # Wavelength congestion fixed
+    wavelength_congestion(network_fixed_rate, M, 'Fixed')
 
     ''' Considering the flex-rate transceiver strategy '''
     # network_initialization() method calls the Network constructor, connect() method,
@@ -84,6 +85,8 @@ if __name__ == '__main__':
     # plot traffic matrix
     plot_traffic_matrix(traffic_matrix, 'Flex', M)
 
+    # Wavelength congestion flex
+    wavelength_congestion(network_flex_rate, M, 'Flex')
 
     '''Considering the maximum theoretical Shannon rate'''
     # network_initialization() method calls the Network constructor, connect() method,
@@ -100,8 +103,8 @@ if __name__ == '__main__':
     plot_snr_and_bit_rate('Shannon', connections)
     # plot traffic matrix
     plot_traffic_matrix(traffic_matrix, 'Shannon', M)
-
-
+    # Wavelength congestion Shannon
+    wavelength_congestion(network_shannon, M, 'Shannon')
 
     '''
     connections_100_fixed = []
